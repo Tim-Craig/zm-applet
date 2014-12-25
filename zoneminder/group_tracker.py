@@ -1,21 +1,23 @@
 from collections import namedtuple
 
 Group = namedtuple('Group', ['id', 'name', 'monitor_ids'])
-Monitor = namedtuple('Monitor', ['id', 'name', 'state'])
+Monitor = namedtuple('Monitor', ['id', 'name', 'state', 'width', 'height'])
 
 
 def parse_group_element(group_element):
-    id = group_element.find('ID').text
+    group_id = group_element.find('ID').text
     name = group_element.find('NAME').text
     monitor_ids = group_element.find('MONITORIDS').text.split(',')
-    return Group(id, name, monitor_ids)
+    return Group(group_id, name, monitor_ids)
 
 
 def parse_monitor_element(monitor_element):
-    id = monitor_element.find('ID').text
+    monitor_id = monitor_element.find('ID').text
     name = monitor_element.find('NAME').text
     state = monitor_element.find('STATE').text
-    return Monitor(id, name, state)
+    width = monitor_element.find('WIDTH').text
+    height = monitor_element.find('HEIGHT').text
+    return Monitor(monitor_id, name, state, width, height)
 
 
 class GroupFilter(object):
@@ -66,8 +68,8 @@ class ZmGroupTracker(object):
 
     def move_to_prev_monitor(self):
         self.current_monitor_idx -= 1
-        if self.current_monitor_idx == 0:
-            self.current_monitor_idx = len(self.groups[self.current_group_idx].monitor_ids)
+        if self.current_monitor_idx < 0:
+            self.current_monitor_idx = len(self.groups[self.current_group_idx].monitor_ids) - 1
         return self.get_current_monitor()
 
     def get_current_monitor(self):
