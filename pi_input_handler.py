@@ -23,8 +23,8 @@ class DelayTracker(object):
 class PiInputHandler(InputHandler):
     def __init__(self, controller):
         super(self.__class__, self).__init__(controller)
-        self.move_left_delay = DelayTracker(.5)
-        self.move_right_delay = DelayTracker(.5)
+        self.move_left_delay = DelayTracker(1)
+        self.move_right_delay = DelayTracker(1)
 
         GPIO.setmode(GPIO.BCM)
 
