@@ -27,6 +27,7 @@ class PygameDisplay(Display):
         self.background = pygame.Surface((self.display_info.current_w, self.display_info.current_h))
         self.background.fill(pygame.Color('#E8E8E8'))
         self.display.blit(self.background, (0, 0))
+        pygame.mouse.set_visible(False)
 
     def set_stream(self, mjpeg_streamer):
         self.mjpeg_streamer = mjpeg_streamer
