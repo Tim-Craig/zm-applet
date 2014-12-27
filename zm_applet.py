@@ -5,7 +5,6 @@ from zoneminder.group_tracker import ZmGroupTracker
 from controller import AppController
 from input_handler import PygameInputHandler
 
-import sys
 import time
 
 class ZmApplet(object):
@@ -30,11 +29,14 @@ class ZmApplet(object):
 
     def run(self):
 
+        last_time = time.time()
         while True:
+            cur_time = time.time()
+            elapsed_time = cur_time - last_time
+            last_time = cur_time
             for handler in self.input_handlers:
-                handler.check_input_commands()
+                handler.check_input_commands(elapsed_time)
             self.controller.update()
-            time.sleep(.01)
 
 
 if __name__ == '__main__':
