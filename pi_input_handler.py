@@ -2,6 +2,7 @@ from input_handler import InputHandler
 import RPi.GPIO as GPIO
 import os
 
+
 class DelayTracker(object):
     def __init__(self, delay_time):
         self.delay_time = delay_time
@@ -11,7 +12,6 @@ class DelayTracker(object):
         self.remaining_time = self.delay_time
 
     def is_delayed(self):
-        print self.remaining_time > 0
         return self.remaining_time > 0
 
     def update(self, elapsed_time):
@@ -22,16 +22,16 @@ class DelayTracker(object):
 
 class PiInputHandler(InputHandler):
     def __init__(self, controller):
-            super(self.__class__, self).__init__(controller)
-            self.move_left_delay = DelayTracker(.5)
-            self.move_right_delay = DelayTracker(.5)
+        super(self.__class__, self).__init__(controller)
+        self.move_left_delay = DelayTracker(.5)
+        self.move_right_delay = DelayTracker(.5)
 
-            GPIO.setmode(GPIO.BCM)
+        GPIO.setmode(GPIO.BCM)
 
-            GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     def check_input_commands(self, elapsed_time):
         self.move_left_delay.update(elapsed_time)

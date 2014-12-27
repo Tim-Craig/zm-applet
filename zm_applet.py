@@ -1,4 +1,3 @@
-import pygame
 from display import PygameDisplay
 from zoneminder.client import ZoneMinderClient
 from zoneminder.group_tracker import ZmGroupTracker
@@ -7,12 +6,14 @@ from input_handler import PygameInputHandler
 
 import time
 
+
 class ZmApplet(object):
     def __init__(self):
         def get_input_handlers(controller):
             handlers = [PygameInputHandler(controller)]
             try:
                 from pi_input_handler import PiInputHandler
+
                 handlers.append(PiInputHandler(controller))
             except ImportError:
                 print('Unable to import raspberrypi input handler')

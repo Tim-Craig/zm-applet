@@ -20,8 +20,6 @@ class PygameInputHandler(InputHandler):
                 if event.key == K_ESCAPE:
                     sys.exit(0)
                 elif event.key == K_LEFT:
-                    print "move prev"
                     self.controller.move_to_prev_monitor_stream()
                 elif event.key == K_RIGHT:
-                    print "move next"
                     self.controller.move_to_next_monitor_stream()
