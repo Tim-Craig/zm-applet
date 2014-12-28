@@ -29,6 +29,12 @@ class PygameDisplay(Display):
         self.display.blit(self.background, (0, 0))
         pygame.mouse.set_visible(False)
 
+    def get_display_size(self):
+        size = None
+        if self.display_info:
+            size = (self.display_info.current_w, self.display_info.current_h)
+        return size
+
     def set_stream(self, mjpeg_streamer):
         self.mjpeg_streamer = mjpeg_streamer
 
