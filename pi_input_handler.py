@@ -1,47 +1,58 @@
-from input_handler import InputHandler
+from input_handler import InputHandler, InputTracker
+from app_events import *
 import RPi.GPIO as GPIO
-import os
+import threading
+import time
 
+GPIO_23 = 23
+GPIO_22 = 22
+GPIO_27 = 27
+GPIO_18 = 18
 
-class DelayTracker(object):
-    def __init__(self, delay_time):
-        self.delay_time = delay_time
-        self.remaining_time = 0
-
-    def trigger(self):
-        self.remaining_time = self.delay_time
-
-    def is_delayed(self):
-        return self.remaining_time > 0
-
-    def update(self, elapsed_time):
-        self.remaining_time -= elapsed_time
-        if self.remaining_time < 0:
-            self.remaining_time = 0
+GPIO_KEY_MAPPING = {'GPIO_23': GPIO_23, 'GPIO_22': GPIO_22, 'GPIO_27': GPIO_27, 'GPIO_18': GPIO_18}
 
 
 class PiInputHandler(InputHandler):
-    def __init__(self, controller):
-        super(self.__class__, self).__init__(controller)
-        self.move_left_delay = DelayTracker(1)
-        self.move_right_delay = DelayTracker(1)
+    def __init__(self, event_bus, app_config):
+        def event_ticker(gpio):
+            while not GPIO.input(gpio):
+                time.sleep(1.5)
+                if not GPIO.input(gpio):
+                    self.gpio_events.add(gpio)
+
+        def falling_callback(gpio_num):
+            if not self.gpio_state[gpio_num]:
+                self.gpio_state[gpio_num] = True
+                self.gpio_events.add(gpio_num)
+                t = threading.Thread(target=event_ticker, args=(gpio_num,))
+                t.start()
+            else:
+                self.gpio_state[gpio_num] = False
+
+        super(PiInputHandler, self).__init__(event_bus, app_config)
+        self.gpio_events = set()
+        self.gpio_state = {GPIO_23: False, GPIO_22: False, GPIO_27: False, GPIO_18: False}
 
         GPIO.setmode(GPIO.BCM)
 
         GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(23, GPIO.BOTH, callback=falling_callback, bouncetime=300)
         GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(22, GPIO.BOTH, callback=falling_callback, bouncetime=300)
         GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(27, GPIO.BOTH, callback=falling_callback, bouncetime=300)
         GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(18, GPIO.BOTH, callback=falling_callback, bouncetime=300)
 
-    def check_input_commands(self, elapsed_time):
-        self.move_left_delay.update(elapsed_time)
-        self.move_right_delay.update(elapsed_time)
+        self.input_trigger = InputTracker(app_config, GPIO_KEY_MAPPING)
 
-        if not GPIO.input(23) and not self.move_left_delay.is_delayed():
-            self.controller.move_to_prev_monitor_stream()
-            self.move_left_delay.trigger()
-        elif not GPIO.input(22) and not self.move_right_delay.is_delayed():
-            self.controller.move_to_next_monitor_stream()
-            self.move_right_delay.trigger()
-        elif not GPIO.input(27) and not GPIO.input(18):
-            os.system('sudo halt')
+    def check_input_commands(self):
+        triggered_events = self.input_trigger.get_triggered_events(self.gpio_events)
+        self.gpio_events.clear()
+        for triggered_event in triggered_events:
+            if triggered_event == EVENT_PREV_MONITOR:
+                self.event_bus.publish_event(triggered_event)
+            elif triggered_event == EVENT_NEXT_MONITOR:
+                self.event_bus.publish_event(triggered_event)
+            elif triggered_event == EVENT_SHUTDOWN:
+                self.event_bus.publish_event(triggered_event)

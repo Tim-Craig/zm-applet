@@ -24,26 +24,30 @@ class ZoneMinderClient(object):
             opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))
             urllib2.install_opener(opener)
 
-        def login():
-            if user_name is not None and password is not None:
-                login_params = {'action': 'login', 'view': 'postlogin', 'username': user_name, 'password': password}
-                request = build_urllib_request(get_server_host_and_port(), self.zm_web_path, login_params)
-                urllib2.urlopen(request)
-
         self.server_host_and_port = get_server_host_and_port()
         self.zm_web_path = zm_web_path
         self.zms_web_path = zms_web_path
         self.user_name = user_name
         self.password = password
+        self.logged_in = False
         init_cookie_jar()
-        login()
 
     def get_xml_console(self):
+        self._login()
         xml_console_params = {'skin': 'xml', 'showGroups': 'true'}
         request = build_urllib_request(self.server_host_and_port, self.zm_web_path, xml_console_params)
         return urllib2.urlopen(request)
 
     def get_monitor_stream(self, monitor_id, scale='100'):
+        self._login()
         stream_parameters = {'mode': 'jpeg', 'monitor': str(monitor_id), 'scale': str(scale)}
         request = build_urllib_request(self.server_host_and_port, self.zms_web_path, stream_parameters)
         return urllib2.urlopen(request)
+
+    def _login(self):
+        if not self.logged_in:
+            if self.user_name is not None and self.password is not None:
+                login_params = {'action': 'login', 'view': 'postlogin', 'username': self.user_name, 'password': self.password}
+                request = build_urllib_request(self.server_host_and_port, self.zm_web_path, login_params)
+                urllib2.urlopen(request)
+            logged_in = True

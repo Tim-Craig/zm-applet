@@ -1,43 +1,59 @@
-from mjpeg_streamer import MjpegStreamer
+import sys
+import os
 
 
-def get_scale(monitor, display_size):
-    x_scale = float(display_size[0]) / float(monitor.width)
-    y_scale = float(display_size[1]) / float(monitor.height)
-    scale = int(x_scale * 100) if x_scale < y_scale else int(y_scale * 100)
-    return scale if scale < 100 else 100
+class Controller(object):
+    def __init__(self, event_bus):
+        self.enabled = False
+        self.event_map = {}
+        event_bus.add_listener(self)
+
+    def process_event(self, event):
+        if self.enabled:
+            if event in self.event_map:
+                event_function = self.event_map[event]
+                event_function()
 
 
-class AppController(object):
-    def __init__(self, display, group_tracker, zm_client):
-        self.display = display
-        self.group_tracker = group_tracker
-        self.zm_client = zm_client
-        self.current_stream = None
-        self.current_monitor_id = None
+class AppController(Controller):
+    def __init__(self, event_bus):
+        super(self.__class__, self).__init__(event_bus)
+        self.event_map = {'quit': self.quit_app,
+                          'shutdown': self.shutdown_system}
 
-    def start(self):
-        self.current_stream = self._start_stream(self.group_tracker.get_current_monitor())
+    @staticmethod
+    def quit_app():
+        sys.exit(0)
 
-    def _start_stream(self, monitor):
-        scale = get_scale(monitor, self.display.get_display_size())
-        stream = self.zm_client.get_monitor_stream(monitor.id, scale)
-        self.display.set_stream(MjpegStreamer(stream))
-        return stream
+    @staticmethod
+    def shutdown_system():
+        os.system('sudo halt')
+        sys.exit(0)
+
+
+class ZoneminderStreamerController(Controller):
+    def __init__(self, event_bus, view, group_tracker_loader):
+        super(self.__class__, self).__init__(event_bus)
+        self.view = view
+        self.group_tracker_loader = group_tracker_loader
+        self.current_monitor_id = group_tracker_loader.get_current_monitor()
+        self.event_map = {'prev_monitor': self.move_to_prev_monitor_stream,
+                          'next_monitor': self.move_to_next_monitor_stream}
 
     def move_to_prev_monitor_stream(self):
-        monitor = self.group_tracker.move_to_prev_monitor()
+        monitor = self.group_tracker_loader.move_to_prev_monitor()
         self.move_to_new_monitor_stream(monitor)
 
     def move_to_next_monitor_stream(self):
-        monitor = self.group_tracker.move_to_next_monitor()
+        monitor = self.group_tracker_loader.move_to_next_monitor()
         self.move_to_new_monitor_stream(monitor)
 
     def move_to_new_monitor_stream(self, monitor):
         if monitor.id != self.current_monitor_id:
-            old_stream = self.current_stream
-            self.current_stream = self._start_stream(monitor)
-            old_stream.close()
+            self.view.start_stream(monitor)
 
-    def update(self):
-        self.display.update()
+
+class GroupSelectorController(Controller):
+    def __init__(self, event_bus):
+        super(self.__class__, self).__init__(event_bus)
+        self.event_map = {}
