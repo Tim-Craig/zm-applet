@@ -96,11 +96,22 @@ class ZmGroupTracker(object):
             self.current_monitor = None
             self.current_monitor_idx = None
 
-    def set_current_group(self, group_idx):
-        if group_idx < 0 or group_idx >= len(self.groups):
-            raise Exception("Group id out of range")
-        self.current_group_idx = 0
-        self.current_monitor_idx = self.groups[self.current_group_idx].monitor_ids[0]
+    def set_current_group(self, group_id):
+        def _get_index(self, item_list, id):
+            for idx in xrange(len(item_list)):
+                if id == item_list[idx].id:
+                    break
+            if idx > len(item_list):
+                idx = 0
+            return idx
+        index = _get_index(self, self.groups, group_id)
+        self.current_group_idx = index
+        self.current_group = self.groups[index]
+        self.current_monitor_idx = 0
+
+    def set_current_monitor(self, monitor_id):
+        idx = self.current_group.monitor_ids.index(monitor_id)
+        self.current_monitor_idx = idx
 
     def move_to_next_monitor(self):
         self.current_monitor_idx += 1
@@ -124,7 +135,7 @@ class ZmGroupTracker(object):
                 monitor = self.monitors[monitor_id]
         return monitor
 
-    def get_monitors(self):
+    def get_current_group_monitors(self):
         return [self.monitors[monitor_id] for monitor_id in self.groups[self.current_group_idx].monitor_ids]
 
 

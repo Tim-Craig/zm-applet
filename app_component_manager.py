@@ -16,15 +16,16 @@ class AppComponentManager(Controller):
         self.default_app_component = default_app_component
         self.app_components = app_components
         self.current_component = default_app_component
-        self.current_component.set_enabled(True)
+        self.current_component.activate()
         self.display.set_view(self.current_component.view)
+        self.enabled = True
         build_event_map()
 
     def update(self):
         self.display.update()
 
-    def switch_to_component(self, app_component):
-        self.current_component.set_enabled(False)
+    def switch_to_component(self, app_component, data=None):
+        self.current_component.deactivate()
         self.current_component = app_component
-        self.display.set_view(app_component)
-        self.current_component.set_enabled(True)
+        self.current_component.activate(data)
+        self.display.set_view(self.current_component.view)

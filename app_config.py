@@ -1,18 +1,34 @@
 import types
 import app_events
 
+SERVER_HOST = 'server_host'
+SERVER_PORT = 'server_port'
+ZM_WEB_PATH = 'zm_web_path'
+USER_NAME = 'user_name'
+PASSWORD = 'password'
+ZMS_WEB_PATH = 'zms_web_path'
+QUIT = 'quit'
+PREV_MONITOR = 'prev_monitor'
+NEXT_MONITOR = 'next_monitor'
+OPEN_GROUP_VIEW = 'open_group_view'
+SHUTDOWN_PROMPT = 'shutdown_prompt'
+SHUTDOWN = 'shutdown'
+
+
 def get_config():
     def get_defaults():
-        return {'server_host': 'overlord',
-                'server_port': '80',
-                'zm_web_path': 'zm',
-                'user_name': None,
-                'password': None,
-                'zms_web_path': 'cgi-bin/zms',
-                'quit': 'escape',
-                'prev_monitor': ('left', 'GPIO_23'),
-                'next_monitor': ('right', 'GPIO_22'),
-                'shutdown': 'GPIO_27+GPIO_18'
+        return {SERVER_HOST: 'overlord',
+                SERVER_PORT: '80',
+                ZM_WEB_PATH: 'zm',
+                USER_NAME: None,
+                PASSWORD: None,
+                ZMS_WEB_PATH: 'cgi-bin/zms',
+                QUIT: 'escape',
+                PREV_MONITOR: ('left', 'GPIO_23'),
+                NEXT_MONITOR: ('right', 'GPIO_22'),
+                OPEN_GROUP_VIEW: ('space', 'GPIO_27'),
+                SHUTDOWN_PROMPT: ('s', 'GPIO_18'),
+                SHUTDOWN:  'GPIO_27+GPIO_18'
                 }
 
     return get_defaults()

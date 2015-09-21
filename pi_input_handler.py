@@ -50,9 +50,4 @@ class PiInputHandler(InputHandler):
         triggered_events = self.input_trigger.get_triggered_events(self.gpio_events)
         self.gpio_events.clear()
         for triggered_event in triggered_events:
-            if triggered_event == EVENT_PREV_MONITOR:
-                self.event_bus.publish_event(triggered_event)
-            elif triggered_event == EVENT_NEXT_MONITOR:
-                self.event_bus.publish_event(triggered_event)
-            elif triggered_event == EVENT_SHUTDOWN:
-                self.event_bus.publish_event(triggered_event)
+            self.event_bus.publish_event(triggered_event)

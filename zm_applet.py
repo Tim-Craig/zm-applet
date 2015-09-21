@@ -1,8 +1,8 @@
 import time
 
-from app_component import ZoneminderStreamComponent, GroupSelectorComponent
+from app_component import ZoneminderStreamComponent, GroupSelectorComponent, MonitorSelectorComponent, ShutdownPromptSelector
 from app_component_manager import AppComponentManager
-from app_config import AppConfig
+from app_config import *
 from display import PygameDisplay
 from event_bus import EventBus
 from zoneminder.client import ZoneMinderClient
@@ -24,9 +24,9 @@ class ZmApplet(object):
             return handlers
 
         def get_zoneminder_client(app_config):
-            client = ZoneMinderClient(app_config.config['server_host'], app_config.config['server_port'],
-                                      app_config.config['zm_web_path'], app_config.config['user_name'],
-                                      app_config.config['password'], app_config.config['zms_web_path'])
+            client = ZoneMinderClient(app_config.config[SERVER_HOST], app_config.config[SERVER_PORT],
+                                      app_config.config[ZM_WEB_PATH], app_config.config[USER_NAME],
+                                      app_config.config[PASSWORD], app_config.config[ZMS_WEB_PATH])
             return client
 
         self.config = AppConfig()
@@ -39,8 +39,10 @@ class ZmApplet(object):
         group_tracker = RefreshingZmGroupTracker(zm_client)
         zm_stream_component = ZoneminderStreamComponent(self.config, self.event_bus, zm_client, group_tracker)
         group_selector_component = GroupSelectorComponent(self.config, self.event_bus, group_tracker)
+        monitor_selector_component = MonitorSelectorComponent(self.config, self.event_bus, group_tracker)
+        shutdown_prompt_component = ShutdownPromptSelector(self.config, self.event_bus)
         self.component_manager = AppComponentManager(self.display, self.event_bus, zm_stream_component,
-                                                    [group_selector_component])
+                                                     [group_selector_component, monitor_selector_component, shutdown_prompt_component])
         self.app_controller = AppController(self.event_bus)
 
         self.input_handlers = get_input_handlers(self.event_bus, self.config)

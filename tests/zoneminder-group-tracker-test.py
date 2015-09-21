@@ -10,7 +10,7 @@ def test_tracker_initialization():
 def test_get_monitors():
     console_file = open(os.path.join('.', 'test-resources', 'zoneminder-xml-console.xml'))
     tracker = ZmGroupTracker(console_file)
-    monitors = tracker.get_monitors()
+    monitors = tracker.get_current_group_monitors()
     assert (monitors[0].id == '11')
     assert (monitors[1].id == '6')
     assert (monitors[2].id == '1')
@@ -27,7 +27,7 @@ def test_get_monitors():
 def test_move_to_next_monitor():
     console_file = open(os.path.join('.', 'test-resources', 'zoneminder-xml-console.xml'))
     tracker = ZmGroupTracker(console_file)
-    monitors = tracker.get_monitors()
+    monitors = tracker.get_current_group_monitors()
     monitor = tracker.move_to_next_monitor()
     assert (monitor == monitors[1])
 
@@ -35,7 +35,7 @@ def test_move_to_next_monitor():
 def test_move_to_prev_monitor():
     console_file = open(os.path.join('.', 'test-resources', 'zoneminder-xml-console.xml'))
     tracker = ZmGroupTracker(console_file)
-    monitors = tracker.get_monitors()
+    monitors = tracker.get_current_group_monitors()
     monitor = tracker.move_to_prev_monitor()
     assert (monitor == monitors[len(monitors) - 1])
 
@@ -43,7 +43,7 @@ def test_move_to_prev_monitor():
 def test_move_to_next_monitor_wrap_end():
     console_file = open(os.path.join('.', 'test-resources', 'zoneminder-xml-console.xml'))
     tracker = ZmGroupTracker(console_file)
-    monitors = tracker.get_monitors()
+    monitors = tracker.get_current_group_monitors()
     monitor = None
     for i in xrange(len(monitors)):
         monitor = tracker.move_to_next_monitor()
