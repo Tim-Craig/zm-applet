@@ -32,7 +32,7 @@ class ZmApplet(object):
         self.config = AppConfig()
         self.event_bus = EventBus()
 
-        self.display = PygameDisplay()
+        self.display = PygameDisplay(self.config)
         self.display.init()
 
         zm_client = get_zoneminder_client(self.config)

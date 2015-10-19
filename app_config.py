@@ -1,42 +1,60 @@
+import json
 import types
 import app_events
+import ConfigParser
+from os.path import expanduser
 
 SERVER_HOST = 'server_host'
 SERVER_PORT = 'server_port'
 ZM_WEB_PATH = 'zm_web_path'
 USER_NAME = 'user_name'
+SHUTDOWN_PROMPT = 'shutdown_prompt'
 PASSWORD = 'password'
 ZMS_WEB_PATH = 'zms_web_path'
 QUIT = 'quit'
 PREV_MONITOR = 'prev_monitor'
 NEXT_MONITOR = 'next_monitor'
 OPEN_GROUP_VIEW = 'open_group_view'
-SHUTDOWN_PROMPT = 'shutdown_prompt'
 SHUTDOWN = 'shutdown'
+#windowed, borderless, or fullscreen
+WINDOW_MODE = 'window_mode'
+WINDOW_MODE_VALUE_WINDOWED = 'windowed'
+WINDOW_MODE_VALUE_BORDERLESS = 'borderless'
+WINDOW_MODE_VALUE_FULLSCREEN = 'fullscreen'
+#either <width>x<height> (e.g. 320x240) or 'full' for full size of display, this is ignored if window_mode is full screen
+SCREEN_SIZE = 'screen_size'
+SCREEN_SIZE_VALUE_FULLSCREEN = 'full'
 
 
 def get_config():
     def get_defaults():
-        return {SERVER_HOST: 'overlord',
-                SERVER_PORT: '80',
+        return {SERVER_HOST: 'localhost',
+                SERVER_PORT: '8080',
                 ZM_WEB_PATH: 'zm',
                 USER_NAME: None,
                 PASSWORD: None,
                 ZMS_WEB_PATH: 'cgi-bin/zms',
                 QUIT: 'escape',
-                PREV_MONITOR: ('left', 'GPIO_23'),
-                NEXT_MONITOR: ('right', 'GPIO_22'),
-                OPEN_GROUP_VIEW: ('space', 'GPIO_27'),
-                SHUTDOWN_PROMPT: ('s', 'GPIO_18'),
-                SHUTDOWN:  'GPIO_27+GPIO_18'
+                PREV_MONITOR: '["left","GPIO_23"]',
+                NEXT_MONITOR: '["right", "GPIO_22"]',
+                OPEN_GROUP_VIEW: '["space", "GPIO_27"]',
+                SHUTDOWN_PROMPT: '["s", "GPIO_18"]',
+                SHUTDOWN:  'GPIO_27+GPIO_18',
+                WINDOW_MODE: 'borderless',
+                SCREEN_SIZE: 'full'
                 }
 
-    return get_defaults()
+    config = ConfigParser.SafeConfigParser(get_defaults())
+    config.read(['zm_applet.cfg', expanduser('~/.zm_applet.cfg')])
+    return config
 
 
 class AppConfig(object):
     def __init__(self):
-        self.config = get_config()
+        self.config = dict(get_config().items('DEFAULT'))
+        for name, value in self.config.iteritems():
+            if value.strip().startswith('['):
+                self.config[name] = json.loads(value.strip())
 
     def get_event_configs_assigned_to_input_labels(self, event_config_values):
         def set_in_set(set1, set2):

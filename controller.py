@@ -9,6 +9,7 @@ class Controller(EventListener):
     def __init__(self, event_bus):
         self.enabled = False
         self.event_map = {}
+        self.event_bus = event_bus
         event_bus.add_listener(self)
 
     def process_event(self, event, data=None):
@@ -16,9 +17,6 @@ class Controller(EventListener):
             if event in self.event_map:
                 event_function = self.event_map[event]
                 event_function(data)
-
-    def is_enabled(self):
-        return
 
 
 class AppController(Controller):
@@ -37,28 +35,24 @@ class AppController(Controller):
         os.system('sudo halt')
         sys.exit(0)
 
-    @staticmethod
-    def hide_mouse(data=None):
-        pygame.mouse.set_visible = False
-
-    @staticmethod
-    def show_mouse(data=None):
-        pygame.mouse.set_visible = True
 
 class ZoneminderStreamerController(Controller):
-    def __init__(self, event_bus, view, group_tracker_loader):
+    def __init__(self, event_bus, view, overlay, group_tracker_loader):
         super(self.__class__, self).__init__(event_bus)
         self.view = view
+        self.overlay = overlay
         self.group_tracker_loader = group_tracker_loader
         self.current_monitor_id = group_tracker_loader.get_current_monitor()
-        self.event_map = {app_events.EVENT_NEXT_MONITOR: self.move_to_prev_monitor_stream,
-                          app_events.EVENT_PREV_MONITOR: self.move_to_next_monitor_stream}
+        self.event_map = {app_events.EVENT_NEXT_MONITOR: self.move_to_next_monitor_stream,
+                          app_events.EVENT_PREV_MONITOR: self.move_to_prev_monitor_stream}
 
     def move_to_prev_monitor_stream(self, data=None):
+        self.overlay.show_left_arrow = True
         monitor = self.group_tracker_loader.move_to_prev_monitor()
         self.move_to_new_monitor_stream(monitor)
 
     def move_to_next_monitor_stream(self, data=None):
+        self.overlay.show_right_arrow = True
         monitor = self.group_tracker_loader.move_to_next_monitor()
         self.move_to_new_monitor_stream(monitor)
 
@@ -72,7 +66,8 @@ class SelectorController(Controller):
         super(self.__class__, self).__init__(event_bus)
         self.view = view
         self.selection_handler = selection_handler
-        self.event_map = {app_events.EVENT_MOUSE_DRAG: self.process_dragging, app_events.EVENT_MOUSE_CLICK: self.process_click}
+        self.event_map = {app_events.EVENT_MOUSE_DRAG: self.process_dragging,
+                          app_events.EVENT_MOUSE_CLICK: self.process_click}
 
     def process_dragging(self, data):
         self.view.drag(data[0], data[1])

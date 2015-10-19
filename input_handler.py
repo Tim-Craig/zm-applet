@@ -96,7 +96,7 @@ class PygameInputHandler(InputHandler):
         key_events = []
         for event in pygame.event.get():
             if event.type == QUIT:
-                sys.exit(0)
+                self.event_bus.publish_event(app_events.EVENT_QUIT)
             elif event.type == KEYDOWN:
                 key_events.append(event.key)
             elif event.type == MOUSEBUTTONDOWN:

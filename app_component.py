@@ -1,5 +1,5 @@
 from controller import ZoneminderStreamerController, SelectorController
-from view import ZoneminderStreamView, ListView
+from view import ZoneminderStreamView, ListView, MonitorChangeOverlay
 from selection_handler import MethodCallbackSelectionHandler
 from app_events import *
 
@@ -11,6 +11,7 @@ class AppComponent(object):
         self.activation_event = activation_event
         self.controller = None
         self.view = None
+        self.overlay = None
 
     def activate(self, data=None):
         self.controller.enabled = True
@@ -22,10 +23,16 @@ class AppComponent(object):
 class ZoneminderStreamComponent(AppComponent):
     def __init__(self, app_config, event_bus, zm_client, group_tracker_loader):
         super(ZoneminderStreamComponent, self).__init__(event_bus, app_config, None)
+        self.event_bus = event_bus
         self.group_tracker_loader = group_tracker_loader
         self.activation_event = None
-        self.view = ZoneminderStreamView(zm_client, group_tracker_loader)
-        self.controller = ZoneminderStreamerController(event_bus, self.view, group_tracker_loader)
+        self.view = ZoneminderStreamView(zm_client, group_tracker_loader, self.stream_release_callback)
+        self.overlay = MonitorChangeOverlay()
+        self.controller = ZoneminderStreamerController(event_bus, self.view, self.overlay, group_tracker_loader)
+
+    def stream_release_callback(self):
+        self.overlay.show_left_arrow = False
+        self.overlay.show_right_arrow = False
 
 
 class SelectorComponent(AppComponent):
