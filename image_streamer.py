@@ -1,23 +1,25 @@
-from pygame import Surface
-import pygame
 import StringIO
 import time
+
+from pygame import Surface
+import pygame
 
 
 class ImageStreamer(object):
     def next_frame(self):
         pass
 
+
 class MessageStreamer(ImageStreamer):
     def __init__(self, size, message):
         self.surface = Surface(size)
-        self.surface.fill((0,0,200))
+        self.surface.fill((0, 0, 200))
         font = pygame.font.SysFont("monospace", 12)
-        render_txt = font.render(message, True, (255,255,255))
+        render_txt = font.render(message, True, (255, 255, 255))
         msg_size = render_txt.get_size()
         x = (size[0] / 2) - (msg_size[0] / 2)
         y = (size[1] / 2) - (msg_size[1] / 2)
-        self.surface.blit(render_txt, (x,y))
+        self.surface.blit(render_txt, (x, y))
 
     def next_frame(self):
         return self.surface
@@ -82,8 +84,3 @@ class DeadConnectionWatchDog(object):
 
 class DeadConnectionException(Exception):
     pass
-
-
-
-
-

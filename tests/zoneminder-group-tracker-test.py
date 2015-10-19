@@ -1,5 +1,6 @@
-from zoneminder.group_tracker import ZmGroupTracker
 import os
+
+from zoneminder.group_tracker import ZmGroupTracker
 
 
 def test_tracker_initialization():

@@ -47,7 +47,8 @@ class ZoneMinderClient(object):
     def _login(self):
         if not self.logged_in:
             if self.user_name is not None and self.password is not None:
-                login_params = {'action': 'login', 'view': 'postlogin', 'username': self.user_name, 'password': self.password}
+                login_params = {'action': 'login', 'view': 'postlogin', 'username': self.user_name,
+                                'password': self.password}
                 request = build_urllib_request(self.server_host_and_port, self.zm_web_path, login_params)
                 urllib2.urlopen(request)
             logged_in = True

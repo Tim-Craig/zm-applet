@@ -1,6 +1,7 @@
 import time
 
-from app_component import ZoneminderStreamComponent, GroupSelectorComponent, MonitorSelectorComponent, ShutdownPromptSelector
+from app_component import ZoneminderStreamComponent, GroupSelectorComponent, MonitorSelectorComponent, \
+    ShutdownPromptSelector
 from app_component_manager import AppComponentManager
 from app_config import *
 from display import PygameDisplay
@@ -42,7 +43,8 @@ class ZmApplet(object):
         monitor_selector_component = MonitorSelectorComponent(self.config, self.event_bus, group_tracker)
         shutdown_prompt_component = ShutdownPromptSelector(self.config, self.event_bus)
         self.component_manager = AppComponentManager(self.display, self.event_bus, zm_stream_component,
-                                                     [group_selector_component, monitor_selector_component, shutdown_prompt_component])
+                                                     [group_selector_component, monitor_selector_component,
+                                                      shutdown_prompt_component])
         self.app_controller = AppController(self.event_bus)
 
         self.input_handlers = get_input_handlers(self.event_bus, self.config)

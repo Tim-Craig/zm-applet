@@ -1,5 +1,6 @@
 from image_streamer import MessageStreamer, MjpegStreamer, DeadConnectionException
 
+
 class ZoneminderMonitorStreamer(MjpegStreamer):
     def __init__(self, zoneminder_client, monitor_id, monitor_scale, image_size):
         super(ZoneminderMonitorStreamer, self).__init__()

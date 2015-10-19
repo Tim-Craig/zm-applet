@@ -1,9 +1,10 @@
+import types
+import time
+
 import pygame
 import pygame.event
 from pygame.locals import *
-import sys
-import types
-import time
+
 import app_events
 
 
@@ -46,6 +47,7 @@ class InputTracker(object):
 CLICK_EXPIRE = 1
 DRAG_LIMIT = 7
 
+
 class MouseEventTracker(object):
     def __init__(self, event_bus):
         self.event_bus = event_bus
@@ -66,8 +68,10 @@ class MouseEventTracker(object):
     def process_mouse_up(self):
         def is_within_expire_time():
             return (mouse_up_time - self.mouse_down_time) <= CLICK_EXPIRE
+
         def is_within_drag_limit():
             return self.total_drag <= DRAG_LIMIT
+
         self.mouse_down = False
         mouse_up_time = time.time()
         if is_within_expire_time() and is_within_drag_limit():
@@ -77,7 +81,7 @@ class MouseEventTracker(object):
 
     def process_mouse_move(self):
         mouse_rel_movement = pygame.mouse.get_rel()
-        if self.mouse_down and mouse_rel_movement != (0,0):
+        if self.mouse_down and mouse_rel_movement != (0, 0):
             self.total_drag += abs(mouse_rel_movement[1])
             self.event_bus.publish_event(app_events.EVENT_MOUSE_DRAG, (self.drag_start, mouse_rel_movement))
             self.is_dragging = True

@@ -104,6 +104,7 @@ class ZmGroupTracker(object):
             if idx > len(item_list):
                 idx = 0
             return idx
+
         index = _get_index(self, self.groups, group_id)
         self.current_group_idx = index
         self.current_group = self.groups[index]

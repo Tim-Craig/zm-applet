@@ -1,8 +1,9 @@
 import json
 import types
-import app_events
 import ConfigParser
 from os.path import expanduser
+
+import app_events
 
 SERVER_HOST = 'server_host'
 SERVER_PORT = 'server_port'
@@ -16,12 +17,12 @@ PREV_MONITOR = 'prev_monitor'
 NEXT_MONITOR = 'next_monitor'
 OPEN_GROUP_VIEW = 'open_group_view'
 SHUTDOWN = 'shutdown'
-#windowed, borderless, or fullscreen
+# windowed, borderless, or fullscreen
 WINDOW_MODE = 'window_mode'
 WINDOW_MODE_VALUE_WINDOWED = 'windowed'
 WINDOW_MODE_VALUE_BORDERLESS = 'borderless'
 WINDOW_MODE_VALUE_FULLSCREEN = 'fullscreen'
-#either <width>x<height> (e.g. 320x240) or 'full' for full size of display, this is ignored if window_mode is full screen
+# either <width>x<height> (e.g. 320x240) or 'full' for full size of display, this is ignored if window_mode is full screen
 SCREEN_SIZE = 'screen_size'
 SCREEN_SIZE_VALUE_FULLSCREEN = 'full'
 
@@ -39,7 +40,7 @@ def get_config():
                 NEXT_MONITOR: '["right", "GPIO_22"]',
                 OPEN_GROUP_VIEW: '["space", "GPIO_27"]',
                 SHUTDOWN_PROMPT: '["s", "GPIO_18"]',
-                SHUTDOWN:  'GPIO_27+GPIO_18',
+                SHUTDOWN: 'GPIO_27+GPIO_18',
                 WINDOW_MODE: 'borderless',
                 SCREEN_SIZE: 'full'
                 }

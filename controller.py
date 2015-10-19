@@ -1,7 +1,7 @@
 import sys
 import os
+
 import app_events
-import pygame
 from event_listener import EventListener
 
 

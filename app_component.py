@@ -38,7 +38,7 @@ class ZoneminderStreamComponent(AppComponent):
 class SelectorComponent(AppComponent):
     def __init__(self, app_config, event_bus, activation_event, caption, item_list, selection_handler):
         super(SelectorComponent, self).__init__(app_config, event_bus, activation_event)
-        self.view = None # The view is created on call activate
+        self.view = None  # The view is created on call activate
         self.controller = None
         self.caption = caption
         self.item_list = item_list
@@ -57,7 +57,8 @@ class SelectorComponent(AppComponent):
 
 class BaseZoneminderSelectorComponent(SelectorComponent):
     def __init__(self, app_config, event_bus, group_tracker, activation_event, caption):
-        super(BaseZoneminderSelectorComponent, self).__init__(app_config, event_bus, activation_event, caption, None, None)
+        super(BaseZoneminderSelectorComponent, self).__init__(app_config, event_bus, activation_event, caption, None,
+                                                              None)
         self.group_tracker = group_tracker
         self.name_to_ids = None
 
@@ -76,7 +77,8 @@ class BaseZoneminderSelectorComponent(SelectorComponent):
 
 class GroupSelectorComponent(BaseZoneminderSelectorComponent):
     def __init__(self, app_config, event_bus, group_tracker):
-        super(GroupSelectorComponent, self).__init__(app_config, event_bus, group_tracker, EVENT_OPEN_GROUP_VIEW, 'Select Group')
+        super(GroupSelectorComponent, self).__init__(app_config, event_bus, group_tracker, EVENT_OPEN_GROUP_VIEW,
+                                                     'Select Group')
 
     def get_items(self):
         return self.group_tracker.groups
@@ -89,7 +91,8 @@ class GroupSelectorComponent(BaseZoneminderSelectorComponent):
 
 class MonitorSelectorComponent(BaseZoneminderSelectorComponent):
     def __init__(self, app_config, event_bus, group_tracker):
-        super(MonitorSelectorComponent, self).__init__(app_config, event_bus, group_tracker, EVENT_OPEN_MONITOR_LIST_VIEW, 'Select Monitor')
+        super(MonitorSelectorComponent, self).__init__(app_config, event_bus, group_tracker,
+                                                       EVENT_OPEN_MONITOR_LIST_VIEW, 'Select Monitor')
         self.group_tracker = group_tracker
         self.monitor_name_to_ids = None
 
@@ -104,7 +107,9 @@ class MonitorSelectorComponent(BaseZoneminderSelectorComponent):
 
 class ShutdownPromptSelector(SelectorComponent):
     def __init__(self, app_config, event_bus):
-        super(ShutdownPromptSelector, self).__init__(app_config, event_bus, EVENT_SHUTDOWN_PROMPT , 'Shutdown?', ['Yes', 'No'], MethodCallbackSelectionHandler(self.handle_selection))
+        super(ShutdownPromptSelector, self).__init__(app_config, event_bus, EVENT_SHUTDOWN_PROMPT, 'Shutdown?',
+                                                     ['Yes', 'No'],
+                                                     MethodCallbackSelectionHandler(self.handle_selection))
 
     def handle_selection(self, selection):
         if selection == 'Yes':

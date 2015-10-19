@@ -1,4 +1,5 @@
 import pygame
+
 from app_config import *
 
 

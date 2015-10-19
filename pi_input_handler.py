@@ -1,8 +1,8 @@
-from input_handler import InputHandler, InputTracker
-from app_events import *
-import RPi.GPIO as GPIO
 import threading
 import time
+
+from input_handler import InputHandler, InputTracker
+import RPi.GPIO as GPIO
 
 GPIO_23 = 23
 GPIO_22 = 22

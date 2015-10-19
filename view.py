@@ -1,8 +1,10 @@
-import pygame
-from pygame import Surface
 import threading
 from Queue import Queue
 import time
+
+import pygame
+from pygame import Surface
+
 from image_streamer import MessageStreamer
 from zoneminder.zoneminder_monitor_streamer import ZoneminderMonitorStreamer
 from util import TimeTracker
@@ -130,7 +132,8 @@ class ZoneminderStreamView(StreamerView):
         self.cur_monitor = monitor
         if monitor:
             scale = get_scale(monitor, self.size)
-            background_stream_loader = threading.Thread(target=self._loadStream, args=(self.zm_client, monitor.id, scale, self.size))
+            background_stream_loader = threading.Thread(target=self._loadStream,
+                                                        args=(self.zm_client, monitor.id, scale, self.size))
             background_stream_loader.daemon = True
             background_stream_loader.start()
         else:
@@ -142,9 +145,9 @@ class ZoneminderStreamView(StreamerView):
             self.set_stream(streamer)
 
     def _loadStream(self, client, monitor_id, scale, size):
-            streamer = ZoneminderMonitorStreamer(client, monitor_id, scale, size)
-            self.set_stream(streamer)
-            self.loading_stream = False
+        streamer = ZoneminderMonitorStreamer(client, monitor_id, scale, size)
+        self.set_stream(streamer)
+        self.loading_stream = False
 
     def _refresh(self):
         time.sleep(3)
