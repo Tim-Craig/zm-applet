@@ -14,10 +14,10 @@ class AppComponent(object):
         self.overlay = None
 
     def activate(self, data=None):
-        self.controller.enabled = True
+        self.controller.activate()
 
     def deactivate(self):
-        self.controller.enabled = False
+        self.controller.deactivate()
 
 
 class ZoneminderStreamComponent(AppComponent):
@@ -38,14 +38,13 @@ class ZoneminderStreamComponent(AppComponent):
 class SelectorComponent(AppComponent):
     def __init__(self, app_config, event_bus, activation_event, caption, item_list, selection_handler):
         super(SelectorComponent, self).__init__(app_config, event_bus, activation_event)
-        self.view = None  # The view is created on call activate
         self.controller = None
         self.caption = caption
         self.item_list = item_list
         self.selection_handler = selection_handler
+        self.view = ListView(self.caption, self.item_list)
 
     def activate(self, data=None):
-        self.view = ListView(self.caption, self.item_list)
         self.controller = SelectorController(self.event_bus, self.view, self.selection_handler)
         self.event_bus.publish_event(INTERNAL_EVENT_SHOW_MOUSE)
         super(SelectorComponent, self).activate(data)
@@ -66,6 +65,7 @@ class BaseZoneminderSelectorComponent(SelectorComponent):
         self.name_to_ids = {item.name: item.id for item in self.get_items()}
         self.item_list = [item.name for item in self.get_items()]
         self.selection_handler = MethodCallbackSelectionHandler(self.handle_selection)
+        self.view.set_item_list(self.item_list)
         super(BaseZoneminderSelectorComponent, self).activate(data)
 
     def get_items(self):
@@ -113,6 +113,6 @@ class ShutdownPromptSelector(SelectorComponent):
 
     def handle_selection(self, selection):
         if selection == 'Yes':
-            self.event_bus.publish_event(SHUTDOWN)
+            self.event_bus.publish_event(EVENT_SHUTDOWN)
         else:
             self.event_bus.publish_event(INTERNAL_EVENT_RELEASE_COMPONENT)

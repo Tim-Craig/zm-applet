@@ -174,7 +174,13 @@ class ListView(View):
 
     def start_view(self, size):
         super(ListView, self).start_view(size)
-        self.load_view_list()
+        if self.item_list:
+            self.load_view_list()
+
+    def set_item_list(self, item_list):
+        self.item_list = item_list
+        if self.item_list:
+            self.load_view_list()
 
     def load_view_list(self):
         def build_text_image(text, img_gb_color=self.bg_color, font_size=30, alignment=TEXT_ALIGNMENT_LEFT,

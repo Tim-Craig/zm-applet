@@ -9,7 +9,9 @@ EVENT_OPEN_GROUP_VIEW = app_config.OPEN_GROUP_VIEW
 EVENT_OPEN_MONITOR_LIST_VIEW = 'open_monitor_list_view'
 
 EVENT_MOUSE_CLICK = 'mouse_click'
+EVENT_MOUSE_DOWN = 'mouse_down'
 EVENT_MOUSE_DRAG = 'mouse_drag'
+EVENT_MOUSE_UP = 'mouse_up'
 
 INTERNAL_EVENT_RELEASE_COMPONENT = 'release_component'
 INTERNAL_EVENT_HIDE_MOUSE = 'hide_mouse'

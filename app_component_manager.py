@@ -20,7 +20,7 @@ class AppComponentManager(Controller):
         self.app_components = app_components
         self.current_component = None
         self.switch_to_component(default_app_component)
-        self.enabled = True
+        self.activate()
         build_event_map()
 
     def update(self):
@@ -30,9 +30,9 @@ class AppComponentManager(Controller):
         if self.current_component:
             self.current_component.deactivate()
         self.current_component = app_component
-        self.current_component.activate(data)
         self.display.set_view(self.current_component.view)
         self.display.set_overlay(self.current_component.overlay)
+        self.current_component.activate(data)
 
     def close(self, data=None):
         if self.current_component:
