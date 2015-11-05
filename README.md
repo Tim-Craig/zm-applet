@@ -20,11 +20,14 @@ https://youtu.be/njlV0YKWJrI
 ##Install zm-applet
 
 * Clone the repo.
-* In the repo, copy the file zm_applet.cfg as a hidden file in the root folder `sudo zm_applet.cfg /root/.zm_applet.cfg`
+* In the repo, copy the file zm_applet.cfg as a hidden file in the root folder `sudo cp zm_applet.cfg /root/.zm_applet.cfg`
 * Change the SERVER_HOST,SERVER_PORT,ZM_WEB_PATH items in the .zm_applet.cfg file to point to your Zoneminder server
 
 ##Setup Raspbian to start zm-applet
 
+* Have the Raspbian set to boot to the desktop via raspi-config.
+* We now want to set Raspbian to boot to zm-applet instead of the full desktop (this saves CPU and memory usage)
 * Create the file /home/pi/.xinitrc with the follow line
     * `@exec sudo XAUTHORITY=$HOME/.Xauthority python /<path you cloned this repository in>/zm_applet.py`
         * We are running as root because it's the only way to access the GPIO ports, if you are not going to use the GPIO ports you can run this as a normal user instead.
+        * 
