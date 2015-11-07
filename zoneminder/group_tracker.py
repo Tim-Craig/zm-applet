@@ -65,25 +65,30 @@ class ZmGroupTracker(object):
     @classmethod
     def from_xml_console(cls, zm_xml_console):
         tracker = cls()
-        tracker._load_xml_console(zm_xml_console)
+        tracker.load_xml_console(zm_xml_console)
         return tracker
 
-    def load_xml_console(self, zm_xml_console):
-        self._load_xml_console(zm_xml_console, self.current_group, self.current_monitor)
+    def load_xml_console(self, zm_xml_console, current_group=None, current_monitor=None):
+        def find_item_index_in_list(item, item_list):
+            if item:
+                for idx, list_item in enumerate(item_list):
+                    if item.id == list_item.id:
+                        return idx
 
-    def _load_xml_console(self, zm_xml_console, current_group=None, current_monitor=None):
         def set_current_group_and_monitor():
+            current_group_idx = find_item_index_in_list(current_group, self.groups)
+            if current_group_idx:
+                self.current_group_idx = current_group_idx
+            else:
+                self.current_group_idx = 0
             if current_group and current_group in self.groups:
                 self.current_group = current_group
-            else:
-                self.current_group = self.groups[0]
-            self.current_group_idx = self.groups.index(self.current_group)
+            self.current_group = self.groups[self.current_group_idx]
 
-            if current_monitor and current_group in self.current_group.monitor_ids:
-                self.current_monitor = current_monitor
-            else:
-                self.current_monitor = self.current_group.monitor_ids[0]
-            self.current_monitor_idx = self.current_group.monitor_ids.index(self.current_monitor)
+            self.current_monitor_idx = 0
+            if current_monitor and current_monitor.id in self.current_group.monitor_ids:
+                self.current_monitor_idx = self.current_group.monitor_ids.index(current_monitor.id)
+            self.current_monitor = self.monitors[self.current_group.monitor_ids[self.current_monitor_idx]]
 
         self.groups, self.monitors = parse_group_info_from_zm_xml(zm_xml_console)
         self.group_names = [group.name for group in self.groups]
@@ -97,15 +102,16 @@ class ZmGroupTracker(object):
             self.current_monitor_idx = None
 
     def set_current_group(self, group_id):
-        def _get_index(self, item_list, id):
+        def _get_index(item_list, item_id):
+            idx = 0
             for idx in xrange(len(item_list)):
-                if id == item_list[idx].id:
+                if item_id == item_list[idx].id:
                     break
             if idx > len(item_list):
                 idx = 0
             return idx
 
-        index = _get_index(self, self.groups, group_id)
+        index = _get_index(self.groups, group_id)
         self.current_group_idx = index
         self.current_group = self.groups[index]
         self.current_monitor_idx = 0
@@ -118,13 +124,15 @@ class ZmGroupTracker(object):
         self.current_monitor_idx += 1
         if self.current_monitor_idx == len(self.groups[self.current_group_idx].monitor_ids):
             self.current_monitor_idx = 0
-        return self.get_current_monitor()
+        self.current_monitor = self.get_current_monitor()
+        return self.current_monitor
 
     def move_to_prev_monitor(self):
         self.current_monitor_idx -= 1
         if self.current_monitor_idx < 0:
             self.current_monitor_idx = len(self.groups[self.current_group_idx].monitor_ids) - 1
-        return self.get_current_monitor()
+        self.current_monitor = self.get_current_monitor()
+        return self.current_monitor
 
     def get_current_monitor(self):
         monitor = None
@@ -141,7 +149,7 @@ class ZmGroupTracker(object):
 
 
 class RefreshingZmGroupTracker(ZmGroupTracker):
-    def __init__(self, zm_client, reload_time_secs=600):
+    def __init__(self, zm_client, reload_time_secs=10):
         def start_refresh_thread():
             self.runner = threading.Thread(target=self._run)
             self.runner.daemon = True
@@ -158,7 +166,7 @@ class RefreshingZmGroupTracker(ZmGroupTracker):
     def _load_console_from_client(self):
         try:
             xml_console = self.zm_client.get_xml_console()
-            self.load_xml_console(xml_console)
+            self.load_xml_console(xml_console, self.current_group, self.current_monitor)
             self.load_error = False
         except URLError:
             self.load_error = True
