@@ -1,5 +1,4 @@
 import time
-
 from app_component import ZoneminderStreamComponent, GroupSelectorComponent, MonitorSelectorComponent, \
     ShutdownPromptSelector
 from app_component_manager import AppComponentManager
@@ -30,6 +29,11 @@ class ZmApplet(object):
                                       app_config.config[PASSWORD], app_config.config[ZMS_WEB_PATH])
             return client
 
+        def get_group_tracker(app_config, client):
+            tracker = RefreshingZmGroupTracker(client, app_config.config[STARTING_GROUP_NAME],
+                                               app_config.config[STARTING_MONITOR_NAME])
+            return tracker
+
         self.config = AppConfig()
         self.event_bus = EventBus()
 
@@ -37,7 +41,7 @@ class ZmApplet(object):
         self.display.init()
 
         zm_client = get_zoneminder_client(self.config)
-        group_tracker = RefreshingZmGroupTracker(zm_client)
+        group_tracker = get_group_tracker(self.config, zm_client)
         zm_stream_component = ZoneminderStreamComponent(self.config, self.event_bus, zm_client, group_tracker)
         group_selector_component = GroupSelectorComponent(self.config, self.event_bus, group_tracker)
         monitor_selector_component = MonitorSelectorComponent(self.config, self.event_bus, group_tracker)

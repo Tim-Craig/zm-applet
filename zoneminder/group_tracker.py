@@ -102,24 +102,39 @@ class ZmGroupTracker(object):
             self.current_monitor_idx = None
 
     def set_current_group(self, group_id):
-        def _get_index(item_list, item_id):
-            idx = 0
-            for idx in xrange(len(item_list)):
-                if item_id == item_list[idx].id:
-                    break
-            if idx > len(item_list):
-                idx = 0
-            return idx
+        idx = 0
+        for idx, group in enumerate(self.groups):
+            if group.id == group_id:
+                break
+        self._set_current_group(idx)
 
-        index = _get_index(self.groups, group_id)
-        self.current_group_idx = index
-        self.current_group = self.groups[index]
+    def set_current_group_by_name(self, group_name):
+        idx = 0
+        for idx, group in enumerate(self.groups):
+            if group.name == group_name:
+                break
+        self._set_current_group(idx)
+
+    def _set_current_group(self, group_idx):
+        if -1 <= group_idx < len(self.groups):
+            self.current_group_idx = group_idx
+        else:
+            self.current_group_idx = 0
+        self.current_group_idx = group_idx
+        self.current_group = self.groups[group_idx]
         self.current_monitor_idx = 0
 
     def set_current_monitor(self, monitor_id):
-        idx = self.current_group.monitor_ids.index(monitor_id)
-        self.current_monitor_idx = idx
+        if monitor_id in self.current_group.monitor_ids:
+            idx = self.current_group.monitor_ids.index(monitor_id)
+            self.current_monitor_idx = idx
 
+    def set_current_monitor_by_name(self, monitor_name):
+        id = 0
+        for id, monitor in self.monitors.iteritems():
+            if monitor.name == monitor_name:
+                break
+        self.set_current_monitor(id)
     def move_to_next_monitor(self):
         self.current_monitor_idx += 1
         if self.current_monitor_idx == len(self.groups[self.current_group_idx].monitor_ids):
@@ -149,7 +164,7 @@ class ZmGroupTracker(object):
 
 
 class RefreshingZmGroupTracker(ZmGroupTracker):
-    def __init__(self, zm_client, reload_time_secs=10):
+    def __init__(self, zm_client, start_group=None, start_monitor=None, reload_time_secs=10):
         def start_refresh_thread():
             self.runner = threading.Thread(target=self._run)
             self.runner.daemon = True
@@ -160,6 +175,8 @@ class RefreshingZmGroupTracker(ZmGroupTracker):
         self.zm_group_tracker = None
         self.reload_time = reload_time_secs
         self.load_error = False
+        self.start_group = start_group
+        self.start_monitor = start_monitor
         self._load_console_from_client()
         start_refresh_thread()
 
@@ -168,6 +185,12 @@ class RefreshingZmGroupTracker(ZmGroupTracker):
             xml_console = self.zm_client.get_xml_console()
             self.load_xml_console(xml_console, self.current_group, self.current_monitor)
             self.load_error = False
+            if self.start_group:
+                self.set_current_group_by_name(self.start_group)
+                self.start_group = None
+            if self.start_monitor:
+                self.set_current_monitor_by_name(self.start_monitor)
+                self.start_monitor = None
         except URLError:
             self.load_error = True
 

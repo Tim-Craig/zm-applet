@@ -1,6 +1,6 @@
+import ConfigParser
 import json
 import types
-import ConfigParser
 from os.path import expanduser
 
 import app_events
@@ -22,9 +22,12 @@ WINDOW_MODE = 'window_mode'
 WINDOW_MODE_VALUE_WINDOWED = 'windowed'
 WINDOW_MODE_VALUE_BORDERLESS = 'borderless'
 WINDOW_MODE_VALUE_FULLSCREEN = 'fullscreen'
-# either <width>x<height> (e.g. 320x240) or 'full' for full size of display, this is ignored if window_mode is full screen
+# either <width>x<height> (e.g. 320x240) or 'full' for full size of display, this is ignored if window_mode is full
+# screen
 SCREEN_SIZE = 'screen_size'
 SCREEN_SIZE_VALUE_FULLSCREEN = 'full'
+STARTING_GROUP_NAME = 'starting_group_name'
+STARTING_MONITOR_NAME = 'starting_monitor_name'
 
 
 def get_config():
@@ -42,7 +45,9 @@ def get_config():
                 SHUTDOWN_PROMPT: '["s", "GPIO_18"]',
                 SHUTDOWN: 'GPIO_27+GPIO_18',
                 WINDOW_MODE: 'borderless',
-                SCREEN_SIZE: 'full'
+                SCREEN_SIZE: 'full',
+                STARTING_GROUP_NAME: None,
+                STARTING_MONITOR_NAME: None
                 }
 
     config = ConfigParser.SafeConfigParser(get_defaults())
