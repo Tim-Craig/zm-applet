@@ -8,7 +8,7 @@ https://youtu.be/njlV0YKWJrI
 #Installation
 
 ##Modify your Zoneminder box
-* Apply this change `https://github.com/Tim-Craig/ZoneMinder/commit/d58480c589635702a8769a90838bb63f08b3e04e#diff-79f9437c5d1904783735af628f1e3437R258`
+* Apply this change: https://github.com/Tim-Craig/ZoneMinder/commit/d58480c589635702a8769a90838bb63f08b3e04e#diff-79f9437c5d1904783735af628f1e3437R258
     * In the future I'm going to adapt zm-applet to use the new rest API that was recently added to Zoneminder so we don't have to do this step
 
 ##Setup your RaspberryPi+PiTFT with Raspbian
@@ -30,4 +30,3 @@ https://youtu.be/njlV0YKWJrI
 * Create the file /home/pi/.xinitrc with the follow line
     * `@exec sudo XAUTHORITY=$HOME/.Xauthority python /<path you cloned this repository in>/zm_applet.py`
         * We are running as root because it's the only way to access the GPIO ports, if you are not going to use the GPIO ports you can run this as a normal user instead.
-        * 
