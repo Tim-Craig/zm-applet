@@ -89,7 +89,7 @@ class MouseEventTracker(object):
             self.is_dragging = True
 
 
-pygame_key_mapping = {'escape': K_ESCAPE, 'left': K_LEFT, 'right': K_RIGHT, 'space': K_SPACE, 's': K_s}
+pygame_key_mapping = {'escape': K_ESCAPE, 'left': K_LEFT, 'right': K_RIGHT, 'space': K_SPACE, 's': K_s, 'm': K_m}
 
 
 class PygameInputHandler(InputHandler):

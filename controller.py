@@ -57,6 +57,7 @@ class ZoneminderStreamerController(Controller):
         self.current_monitor_id = group_tracker_loader.get_current_monitor()
         self.mouse_area_handler = None
         self.event_map = {app_events.EVENT_NEXT_MONITOR: self.move_to_next_monitor_stream,
+                          app_events.INTERNAL_EVENT_NEXT_PATROL_MONITOR: self.move_to_next_monitor_stream,
                           app_events.EVENT_PREV_MONITOR: self.move_to_prev_monitor_stream,
                           app_events.EVENT_MOUSE_CLICK: self.process_click}
 
@@ -110,11 +111,8 @@ class SelectorController(Controller):
 class MouseAreaMap(object):
     def __init__(self, screen_size, areas, area_actions):
         def convert_area_to_pixel_area(area):
-            pixel_area = []
-            pixel_area.append(screen_size[0] * area[0])
-            pixel_area.append(screen_size[1] * area[1])
-            pixel_area.append(screen_size[0] * area[2])
-            pixel_area.append(screen_size[1] * area[3])
+            pixel_area = [screen_size[0] * area[0], screen_size[1] * area[1], screen_size[0] * area[2],
+                          screen_size[1] * area[3]]
             return pixel_area
         self.screen_size = screen_size
         self.areas = areas

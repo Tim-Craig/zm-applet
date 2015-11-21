@@ -1,6 +1,6 @@
 import time
 from app_component import ZoneminderStreamComponent, GroupSelectorComponent, MonitorSelectorComponent, \
-    ShutdownPromptSelector
+    ShutdownPromptSelector, MenuSelector
 from app_component_manager import AppComponentManager
 from app_config import *
 from display import PygameDisplay
@@ -9,7 +9,7 @@ from zoneminder.client import ZoneMinderClient
 from zoneminder.group_tracker import RefreshingZmGroupTracker
 from controller import AppController
 from input_handler import PygameInputHandler
-
+from task import TaskManager
 
 class ZmApplet(object):
     def __init__(self):
@@ -46,18 +46,21 @@ class ZmApplet(object):
         group_selector_component = GroupSelectorComponent(self.config, self.event_bus, group_tracker)
         monitor_selector_component = MonitorSelectorComponent(self.config, self.event_bus, group_tracker)
         shutdown_prompt_component = ShutdownPromptSelector(self.config, self.event_bus)
+        menu_selector = MenuSelector(self.config, self.event_bus)
         self.component_manager = AppComponentManager(self.display, self.event_bus, zm_stream_component,
                                                      [group_selector_component, monitor_selector_component,
-                                                      shutdown_prompt_component])
+                                                      shutdown_prompt_component, menu_selector])
         self.app_controller = AppController(self.event_bus)
 
         self.input_handlers = get_input_handlers(self.event_bus, self.config)
+        self.task_manager = TaskManager(self.event_bus)
 
     def run(self):
         while True:
             self.component_manager.update()
             for handler in self.input_handlers:
                 handler.check_input_commands()
+            self.task_manager.update()
             time.sleep(.1)
 
 

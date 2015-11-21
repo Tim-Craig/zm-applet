@@ -1,7 +1,8 @@
-from controller import ZoneminderStreamerController, SelectorController
-from view import ZoneminderStreamView, ListView, MonitorChangeOverlay
-from selection_handler import MethodCallbackSelectionHandler
 from app_events import *
+from controller import ZoneminderStreamerController, SelectorController
+from selection_handler import MethodCallbackSelectionHandler
+from view import ZoneminderStreamView, ListView, MonitorChangeOverlay
+from task import PatrolTask
 
 
 class AppComponent(object):
@@ -116,3 +117,17 @@ class ShutdownPromptSelector(SelectorComponent):
             self.event_bus.publish_event(EVENT_SHUTDOWN)
         else:
             self.event_bus.publish_event(INTERNAL_EVENT_RELEASE_COMPONENT)
+
+
+class MenuSelector(SelectorComponent):
+    def __init__(self, app_config, event_bus):
+        super(MenuSelector, self).__init__(app_config, event_bus, EVENT_OPEN_MENU, '',
+                                           ['Cycle Mode', 'Shutdown System'],
+                                           MethodCallbackSelectionHandler(self.handle_selection))
+
+    def handle_selection(self, selection):
+        if selection == 'Cycle Mode':
+            self.event_bus.publish_event(INTERNAL_EVENT_RELEASE_COMPONENT)
+            self.event_bus.publish_event(INTERNAL_EVENT_LAUNCH_TASK, PatrolTask(5))
+        else:
+            self.event_bus.publish_event(EVENT_SHUTDOWN_PROMPT)

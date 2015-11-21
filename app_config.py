@@ -16,6 +16,7 @@ QUIT = 'quit'
 PREV_MONITOR = 'prev_monitor'
 NEXT_MONITOR = 'next_monitor'
 OPEN_GROUP_VIEW = 'open_group_view'
+OPEN_MENU = 'open_menu'
 SHUTDOWN = 'shutdown'
 # windowed, borderless, or fullscreen
 WINDOW_MODE = 'window_mode'
@@ -28,6 +29,7 @@ SCREEN_SIZE = 'screen_size'
 SCREEN_SIZE_VALUE_FULLSCREEN = 'full'
 STARTING_GROUP_NAME = 'starting_group_name'
 STARTING_MONITOR_NAME = 'starting_monitor_name'
+CYCLE_MODE = 'cycle_mode'
 
 
 def get_config():
@@ -42,7 +44,7 @@ def get_config():
                 PREV_MONITOR: '["left","GPIO_23"]',
                 NEXT_MONITOR: '["right", "GPIO_22"]',
                 OPEN_GROUP_VIEW: '["space", "GPIO_27"]',
-                SHUTDOWN_PROMPT: '["s", "GPIO_18"]',
+                OPEN_MENU: 'GPIO_18',
                 SHUTDOWN: 'GPIO_27+GPIO_18',
                 WINDOW_MODE: 'borderless',
                 SCREEN_SIZE: 'full',
@@ -93,7 +95,7 @@ class AppConfig(object):
             return matches if len(matches) > 0 else None
 
         matching_config_map = {}
-        for config_name in app_events.get_event_type_configs():
+        for config_name in app_events.CONFIG_EVENT_TYPES:
             if config_name in self.config.keys():
                 config_value = self.config[config_name]
                 matched_values = find_matching_values(config_value, event_config_values)

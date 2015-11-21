@@ -33,6 +33,7 @@ class AppComponentManager(Controller):
         self.display.set_view(self.current_component.view)
         self.display.set_overlay(self.current_component.overlay)
         self.current_component.activate(data)
+        self.event_bus.publish_event(INTERNAL_EVENT_COMPONENT_SWITCHED)
 
     def close(self, data=None):
         if self.current_component:
