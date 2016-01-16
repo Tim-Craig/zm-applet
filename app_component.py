@@ -3,6 +3,7 @@ from controller import ZoneminderStreamerController, SelectorController
 from selection_handler import MethodCallbackSelectionHandler
 from view import ZoneminderStreamView, ListView, MonitorChangeOverlay
 from task import PatrolTask
+from app_config import *
 
 
 class AppComponent(object):
@@ -128,6 +129,6 @@ class MenuSelector(SelectorComponent):
     def handle_selection(self, selection):
         if selection == 'Cycle Mode':
             self.event_bus.publish_event(INTERNAL_EVENT_RELEASE_COMPONENT)
-            self.event_bus.publish_event(INTERNAL_EVENT_LAUNCH_TASK, PatrolTask(5))
+            self.event_bus.publish_event(INTERNAL_EVENT_LAUNCH_TASK, PatrolTask(float(self.app_config.config[CYCLE_DELAY])))
         else:
             self.event_bus.publish_event(EVENT_SHUTDOWN_PROMPT)

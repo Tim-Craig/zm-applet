@@ -29,7 +29,7 @@ SCREEN_SIZE = 'screen_size'
 SCREEN_SIZE_VALUE_FULLSCREEN = 'full'
 STARTING_GROUP_NAME = 'starting_group_name'
 STARTING_MONITOR_NAME = 'starting_monitor_name'
-CYCLE_MODE = 'cycle_mode'
+CYCLE_DELAY = 'cycle_delay'
 
 
 def get_config():
@@ -49,7 +49,8 @@ def get_config():
                 WINDOW_MODE: 'borderless',
                 SCREEN_SIZE: 'full',
                 STARTING_GROUP_NAME: None,
-                STARTING_MONITOR_NAME: None
+                STARTING_MONITOR_NAME: None,
+                CYCLE_DELAY: 10
                 }
 
     config = ConfigParser.SafeConfigParser(get_defaults())
