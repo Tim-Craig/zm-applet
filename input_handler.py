@@ -20,7 +20,7 @@ class InputHandler(object):
 class InputTracker(object):
     def __init__(self, app_config, input_config_label_mapping):
         event_to_label_mapping = app_config.get_event_configs_assigned_to_input_labels(
-            input_config_label_mapping.keys())
+                input_config_label_mapping.keys())
         self.single_input_events = {}
         self.multi_input_events = {}
         for event, label_values in event_to_label_mapping.iteritems():

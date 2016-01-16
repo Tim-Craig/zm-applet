@@ -43,10 +43,11 @@ class AppController(Controller):
         sys.exit(0)
 
 
-LEFT_TOUCH_AREA = [0,0,0.20,1.00]
-RIGHT_TOUCH_AREA = [.80,0,0.20,1.00]
+LEFT_TOUCH_AREA = [0, 0, 0.20, 1.00]
+RIGHT_TOUCH_AREA = [.80, 0, 0.20, 1.00]
 MENU_TOUCH_AREA = [.20, 0, .60, .20]
 SHUTDOWN_TOUCH_AREA = [.20, .80, .60, .20]
+
 
 class ZoneminderStreamerController(Controller):
     def __init__(self, event_bus, view, overlay, group_tracker_loader):
@@ -67,11 +68,11 @@ class ZoneminderStreamerController(Controller):
             area_actions = [self.move_to_prev_monitor_stream, self.move_to_next_monitor_stream,
                             partial(self.event_bus.publish_event, app_events.EVENT_OPEN_GROUP_VIEW),
                             partial(self.event_bus.publish_event, app_events.EVENT_SHUTDOWN_PROMPT)]
-            return MouseAreaMap(self.view.size, areas,area_actions)
+            return MouseAreaMap(self.view.size, areas, area_actions)
+
         super(ZoneminderStreamerController, self).activate()
         if not self.mouse_area_handler:
             self.mouse_area_handler = build_mouse_area_mapping()
-
 
     def move_to_prev_monitor_stream(self, data=None):
         self.overlay.show_left_arrow = True
@@ -114,6 +115,7 @@ class MouseAreaMap(object):
             pixel_area = [screen_size[0] * area[0], screen_size[1] * area[1], screen_size[0] * area[2],
                           screen_size[1] * area[3]]
             return pixel_area
+
         self.screen_size = screen_size
         self.areas = areas
         self.area_actions = area_actions
@@ -125,6 +127,7 @@ class MouseAreaMap(object):
             is_in_area = is_in_area and (area[0] <= x <= (area[0] + area[2]))
             is_in_area = is_in_area and (area[1] <= y <= (area[1] + area[3]))
             return is_in_area
+
         for idx, pixel_area in enumerate(self.pixel_areas):
             if is_point_in_area(x, y, pixel_area):
                 self.area_actions[idx]()

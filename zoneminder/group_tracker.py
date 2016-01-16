@@ -135,6 +135,7 @@ class ZmGroupTracker(object):
             if monitor.name == monitor_name:
                 break
         self.set_current_monitor(id)
+
     def move_to_next_monitor(self):
         self.current_monitor_idx += 1
         if self.current_monitor_idx == len(self.groups[self.current_group_idx].monitor_ids):

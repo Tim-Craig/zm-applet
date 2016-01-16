@@ -11,6 +11,7 @@ from controller import AppController
 from input_handler import PygameInputHandler
 from task import TaskManager
 
+
 class ZmApplet(object):
     def __init__(self):
         def get_input_handlers(controller, app_config):
