@@ -1,0 +1,66 @@
+Image stream process
+
+event -> Controller -> pipe -> process (mjpeg streamer)
+
+process (mjpeg stream) -> new image frame -> pipe -> controller -> repaint event
+
+
+
+Main Thread
+  calls update on input handler, event bus and active component continuously
+
+
+Zoneminder Group Manager
+    Streamer needs monitor before starting
+
+
+
+Expensive operations:
+
+MJpeg stream - Reading data from socket - always blocking
+
+
+Convert jpg to Pygame Image?
+
+
+
+Approaches:
+Pure Event-based or update loop?
+    Pure Event-based
+        All input methods need to have callback hooks otherwise need to use a loop or a thread polling input methods
+        Any app code that does periodic work would have to move that work to a thread, Python doesn't have good thread throughput
+    update loop
+        handles code that has periodic work better
+        can run centralized code not tied to an app
+        e.g. The periodic patrol task would need to run it's wait-x-sec-emmit-next-event on update event instead of tread
+
+Multi-threading on Python not viable.  Better to use Non-blocking IO?
+With MJPEG stream we keep http connection open
+Decided to move mjpeg stream to seperate process
+
+
+Error scenarios
+
+	Client failed to get group/monitor information at startup
+		Init app component keeps changes loading screen to "connection error, retrying..." screen
+		Spawn task again
+			
+	Client failed to get group/monitor information during refresh
+
+
+	Failed to open request monitor stream for first time
+
+
+	Connection to current running stream dies
+
+
+
+New image streaming
+    Moving mjpeg streaming to seperate process.
+        A task will start the process
+        mjpeg proc will queue image frames
+        task will take latest frame and publish event
+        stream controller will listen to frame event and hold frame data, stream appcomponent will convert frame to pygame image in update method
+        when connection error occurs process queues error, task publish retry_connection event
+
+    image stream App component will have state now, states will be "streaming" "loading" (or for init and retry connection) state will change stream proc's new image events and retry conection events

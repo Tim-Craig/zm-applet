@@ -14,9 +14,8 @@ class PygameDisplay(object):
 
     def init(self):
         def get_desired_screen_size():
-            size = None
             if self.app_config.config[SCREEN_SIZE] == SCREEN_SIZE_VALUE_FULLSCREEN or \
-                            self.app_config.config[WINDOW_MODE] == WINDOW_MODE_VALUE_FULLSCREEN:
+                    self.app_config.config[WINDOW_MODE] == WINDOW_MODE_VALUE_FULLSCREEN:
                 display_info = pygame.display.Info()
                 size = (display_info.current_w, display_info.current_h)
             else:
@@ -65,7 +64,11 @@ class PygameDisplay(object):
 
     def update(self):
         if self.display:
-            self.view.paint(self.display)
+            view_repainted = False
+            if self.view.check_if_repaint_needed():
+                self.view.paint(self.display)
+                view_repainted = True
             if self.overlay:
-                self.overlay.paint(self.display)
-            pygame.display.update()
+                if self.overlay.check_if_repaint_needed() or view_repainted:
+                    self.overlay.paint(self.display)
+            pygame.display.flip()

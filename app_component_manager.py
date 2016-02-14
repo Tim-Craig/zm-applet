@@ -1,11 +1,11 @@
 from functools import partial
 
-from controller import Controller
 from app_events import *
+from controller import Controller
 
 
 class AppComponentManager(Controller):
-    def __init__(self, display, event_bus, default_app_component, app_components):
+    def __init__(self, display, event_bus, initial_app_component, default_app_component, app_components):
         def build_event_map():
             self.event_map = {
                 INTERNAL_EVENT_RELEASE_COMPONENT: partial(self.switch_to_component, default_app_component),
@@ -16,15 +16,13 @@ class AppComponentManager(Controller):
         super(self.__class__, self).__init__(event_bus)
         self.display = display
         self.event_bus = event_bus
+        self.initial_app_component = initial_app_component
         self.default_app_component = default_app_component
         self.app_components = app_components
         self.current_component = None
-        self.switch_to_component(default_app_component)
+        self.switch_to_component(initial_app_component)
         self.activate()
         build_event_map()
-
-    def update(self):
-        self.display.update()
 
     def switch_to_component(self, app_component, data=None):
         if self.current_component:

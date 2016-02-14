@@ -1,5 +1,6 @@
-import urllib2
 import cookielib
+import json
+import urllib2
 
 
 def build_url(server_host_and_port, web_path='', params=None):
@@ -9,7 +10,7 @@ def build_url(server_host_and_port, web_path='', params=None):
     return 'http://%s/%s%s' % (server_host_and_port, web_path, query_section)
 
 
-def build_urllib_request(server_host_and_port, web_path, params):
+def build_urllib_request(server_host_and_port, web_path, params=None):
     return urllib2.Request(build_url(server_host_and_port, web_path, params))
 
 
@@ -32,15 +33,23 @@ class ZoneMinderClient(object):
         self.logged_in = False
         init_cookie_jar()
 
-    def get_xml_console(self):
-        self._login()
-        xml_console_params = {'skin': 'xml', 'showGroups': 'true'}
-        request = build_urllib_request(self.server_host_and_port, self.zm_web_path, xml_console_params)
-        return urllib2.urlopen(request)
+    def get_groups(self):
+        return self._get_json_from_server("api/groups.json")
 
-    def get_monitor_stream(self, monitor_id, scale='100'):
+    def get_monitors(self):
+        return self._get_json_from_server("api/monitors.json")
+
+    def _get_json_from_server(self, path):
         self._login()
-        stream_parameters = {'mode': 'jpeg', 'monitor': str(monitor_id), 'scale': str(scale)}
+        request = build_urllib_request(self.server_host_and_port, self.zm_web_path + '/' + path)
+        stream = urllib2.urlopen(request)
+        json_data = json.load(stream)
+        stream.close()
+        return json_data
+
+    def get_monitor_stream(self, monitor_id, max_fps='5', scale='100'):
+        self._login()
+        stream_parameters = {'mode': 'jpeg', 'monitor': str(monitor_id), 'scale': str(scale), 'maxfps': max_fps}
         request = build_urllib_request(self.server_host_and_port, self.zms_web_path, stream_parameters)
         return urllib2.urlopen(request)
 
@@ -51,4 +60,4 @@ class ZoneMinderClient(object):
                                 'password': self.password}
                 request = build_urllib_request(self.server_host_and_port, self.zm_web_path, login_params)
                 urllib2.urlopen(request)
-            logged_in = True
+            self.logged_in = True

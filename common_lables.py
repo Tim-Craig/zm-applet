@@ -1,0 +1,7 @@
+QUIT = 'quit'
+PREV_MONITOR = 'prev_monitor'
+NEXT_MONITOR = 'next_monitor'
+SHUTDOWN_PROMPT = 'shutdown_prompt'
+SHUTDOWN = 'shutdown'
+OPEN_GROUP_VIEW = 'open_group_view'
+OPEN_MENU = 'open_menu'

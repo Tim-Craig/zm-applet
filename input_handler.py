@@ -76,7 +76,7 @@ class MouseEventTracker(object):
         self.mouse_down = False
         mouse_up_time = time.time()
         if is_within_expire_time() and is_within_drag_limit():
-            self.event_bus.publish_event(app_events.EVENT_MOUSE_CLICK, pygame.mouse.get_pos())
+            self.event_bus.publish_event(app_events.EVENT_MOUSE_CLICK, (pygame.mouse.get_pos()))
         self.mouse_down_time = 0
         self.is_dragging = False
         self.event_bus.publish_event(app_events.EVENT_MOUSE_UP)

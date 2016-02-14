@@ -4,20 +4,21 @@ import types
 from os.path import expanduser
 
 import app_events
+import common_lables
 
 SERVER_HOST = 'server_host'
 SERVER_PORT = 'server_port'
 ZM_WEB_PATH = 'zm_web_path'
 USER_NAME = 'user_name'
-SHUTDOWN_PROMPT = 'shutdown_prompt'
+SHUTDOWN_PROMPT = common_lables.SHUTDOWN_PROMPT
 PASSWORD = 'password'
 ZMS_WEB_PATH = 'zms_web_path'
-QUIT = 'quit'
-PREV_MONITOR = 'prev_monitor'
-NEXT_MONITOR = 'next_monitor'
-OPEN_GROUP_VIEW = 'open_group_view'
-OPEN_MENU = 'open_menu'
-SHUTDOWN = 'shutdown'
+QUIT = common_lables.QUIT
+PREV_MONITOR = common_lables.PREV_MONITOR
+NEXT_MONITOR = common_lables.NEXT_MONITOR
+OPEN_GROUP_VIEW = common_lables.OPEN_GROUP_VIEW
+OPEN_MENU = common_lables.OPEN_MENU
+SHUTDOWN = common_lables.SHUTDOWN
 # windowed, borderless, or fullscreen
 WINDOW_MODE = 'window_mode'
 WINDOW_MODE_VALUE_WINDOWED = 'windowed'
@@ -29,7 +30,10 @@ SCREEN_SIZE = 'screen_size'
 SCREEN_SIZE_VALUE_FULLSCREEN = 'full'
 STARTING_GROUP_NAME = 'starting_group_name'
 STARTING_MONITOR_NAME = 'starting_monitor_name'
-CYCLE_DELAY = 'cycle_delay'
+PATROL_DELAY = 'patrol_delay'
+PATROL_AT_START_UP = 'patrol_at_start_up'
+MAX_FPS = 'max_fps'
+MONTOR_GROUP_LOAD_INTERVAL = 'monitor_group_load_interval'
 
 
 def get_config():
@@ -44,13 +48,16 @@ def get_config():
                 PREV_MONITOR: '["left","GPIO_23"]',
                 NEXT_MONITOR: '["right", "GPIO_22"]',
                 OPEN_GROUP_VIEW: '["space", "GPIO_27"]',
-                OPEN_MENU: 'GPIO_18',
+                OPEN_MENU: '["m","GPIO_18"]',
                 SHUTDOWN: 'GPIO_27+GPIO_18',
                 WINDOW_MODE: 'borderless',
                 SCREEN_SIZE: 'full',
                 STARTING_GROUP_NAME: None,
                 STARTING_MONITOR_NAME: None,
-                CYCLE_DELAY: 10
+                PATROL_DELAY: '10',
+                PATROL_AT_START_UP: "N",
+                MONTOR_GROUP_LOAD_INTERVAL: '60',
+                MAX_FPS: '3'
                 }
 
     config = ConfigParser.SafeConfigParser(get_defaults())
@@ -60,7 +67,9 @@ def get_config():
 
 class AppConfig(object):
     def __init__(self):
-        self.config = dict(get_config().items('DEFAULT'))
+        self.config = dict()
+        for config_item in get_config().items('DEFAULT'):
+            self.config[config_item[0]] = config_item[1]
         for name, value in self.config.iteritems():
             if value.strip().startswith('['):
                 self.config[name] = json.loads(value.strip())
@@ -103,3 +112,12 @@ class AppConfig(object):
                 if matched_values:
                     matching_config_map[config_name] = matched_values
         return matching_config_map
+
+    BOOL_TRUE_STRINGS = ['Y', 'YES', 'TRUE']
+
+    def get_as_boolean(self, key, default_value=False):
+        bool_value = default_value
+        if key in self.config:
+            bool_value = self.config[key].upper() in self.BOOL_TRUE_STRINGS
+
+        return bool_value

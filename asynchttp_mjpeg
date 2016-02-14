@@ -1,0 +1,20 @@
+import aiohttp
+import asyncio
+
+async def get_context(resp, size):
+    chunk = await resp.content.readexactly(size)
+    print('got chunk: ' + str(len(chunk)))
+    print(chunk)
+
+async def stream():
+    async with aiohttp.ClientSession() as session:
+        async with session.get('http://overlord/cgi-bin/zms?mode=jpeg&scale=25&maxfps=4&monitor=13') as resp:
+            while True:
+                print("start loop")
+                line = await resp.content.readline()
+                while line[0:15].decode("utf-8", errors="ignore") != 'Content-Length:':
+                    line = await resp.content.readline()
+                print("line: " + str(line));
+                count = int(line[16:])
+                print(count)
+                await get_context(resp, count)

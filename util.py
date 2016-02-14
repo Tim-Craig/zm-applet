@@ -1,10 +1,22 @@
-import time
+import pygame
+from pygame import Surface
 
 
-class TimeTracker(object):
-    def __init__(self, track_time):
-        self.track_time = track_time
-        self.start_time = time.time()
+def close_stream_ignore_exception(stream):
+    if stream:
+        try:
+            stream.close()
+        except Exception:
+            pass
 
-    def passed(self):
-        return (time.time() - self.start_time) > self.track_time
+
+def create_message_image(message, image_size):
+    image = Surface(image_size)
+    image.fill((0, 0, 200))
+    font = pygame.font.SysFont("monospace", 12)
+    render_txt = font.render(message, True, (255, 255, 255))
+    msg_size = render_txt.get_size()
+    x = (image_size[0] / 2) - (msg_size[0] / 2)
+    y = (image_size[1] / 2) - (msg_size[1] / 2)
+    image.blit(render_txt, (x, y))
+    return image
