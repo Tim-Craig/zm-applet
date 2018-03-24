@@ -26,12 +26,13 @@ def get_best_fitting_font(message, image_size):
     return pygame.font.SysFont("monospace", last_size)
 
 
-def create_message_image(message, image_size, x_margin_percent=10):
-    image = Surface(image_size)
+def create_message_image(message, image_size, x_margin_percent=10, font_color=(255, 225, 255),
+                         bg_color=(0, 0, 200)):
+    image = Surface(image_size, pygame.SRCALPHA)
     margin_size = (image_size[0] - (image_size[0] * x_margin_percent / 100), image_size[1])
-    image.fill((0, 0, 200))
+    image.fill(bg_color)
     font = get_best_fitting_font(message, margin_size)
-    render_txt = font.render(message, True, (255, 255, 255))
+    render_txt = font.render(message, True, font_color)
     msg_size = render_txt.get_size()
     x = (image_size[0] / 2) - (msg_size[0] / 2)
     y = (image_size[1] / 2) - (msg_size[1] / 2)

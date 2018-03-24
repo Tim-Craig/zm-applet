@@ -1,6 +1,4 @@
 import os
-import time
-
 import pygame
 
 from app_component_manager import AppComponentManager
@@ -63,13 +61,16 @@ class ZmApplet(object):
 
     def run(self):
         self.app_controller.activate()
+        clock = pygame.time.Clock()
+        time_elapsed = 0
 
         while self.app_state.is_running and not self.app_state.shutdown_system:
             self.input_manager.process_inputs()
             self.task_manager.update()
             self.app_context.event_bus.process_queue()
+            self.component_manager.update(time_elapsed)
             self.display.update()
-            time.sleep(.1)
+            time_elapsed = clock.tick(10)
 
         if self.app_state.shutdown_system:
             os.system('sudo halt')

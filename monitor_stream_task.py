@@ -1,5 +1,7 @@
-import StringIO
+import signal
 import time
+
+import StringIO
 from functools import partial
 
 import app_config
@@ -75,10 +77,13 @@ def monitor_stream_generator(app_context, output_queue):
         commands = yield process_worker.CODE_WORKER_CONTINUE
 
 
-def next_frame(stream):
+def next_frame(stream, connection_time=10):
     def read_line():
         try:
+            signal.signal(signal.SIGALRM, _signal_alarm_handler)
+            signal.alarm(connection_time)
             content = stream.readline()
+            signal.alarm(0)
         except Exception:
             raise DeadConnectionException
         return content
@@ -90,7 +95,10 @@ def next_frame(stream):
         dead_connection_watch_dog.check(content_length_line)
     count = int(content_length_line[16:])
     try:
+        signal.signal(signal.SIGALRM, _signal_alarm_handler)
+        signal.alarm(connection_time)
         img_buffer = stream.read(count)
+        signal.alarm(0)
     except Exception:
         raise DeadConnectionException()
     while len(img_buffer) != 0 and img_buffer[0] != chr(0xff):
@@ -117,13 +125,17 @@ class DeadConnectionWatchDog(object):
         self.last_time = time.time()
 
 
+def _signal_alarm_handler(self, signum, frame):
+    raise DeadConnectionException()
+
+
 class DeadConnectionException(Exception):
     pass
 
 
 class MonitorStreamTask(ProcessWorkerTask):
     def __init__(self, app_context):
-        super(MonitorStreamTask, self).__init__(partial(monitor_stream_generator, app_context))
+        super(MonitorStreamTask, self).__init__(partial(monitor_stream_generator, app_context), 5)
         self.app_context = app_context
         self.current_monitor = None
 
@@ -134,15 +146,12 @@ class MonitorStreamTask(ProcessWorkerTask):
                 self.current_monitor = data
                 self.process_worker.send_command(COMMAND_SWITCH_TO_MONITOR, data)
 
-    def update(self):
-        super(MonitorStreamTask, self).update()
-        commands = self.process_worker.get_commands()
-        if len(commands) > 0:
-            command = commands[len(commands) - 1]
-            if command[0] == COMMAND_NEW_STREAM_FRAME:
-                self.event_bus.publish_event(INTERNAL_EVENT_NEW_STREAM_FRAME, command[1])
-            elif command[0] == COMMAND_STREAM_ERROR_RETRYING:
-                self.event_bus.publish_event(INTERNAL_EVENT_STREAM_ERROR_RETRYING)
+    def _process_commands(self, commands):
+        command = commands[len(commands) - 1]
+        if command[0] == COMMAND_NEW_STREAM_FRAME:
+            self.event_bus.publish_event(INTERNAL_EVENT_NEW_STREAM_FRAME, command[1])
+        elif command[0] == COMMAND_STREAM_ERROR_RETRYING:
+            self.event_bus.publish_event(INTERNAL_EVENT_STREAM_ERROR_RETRYING)
 
     def _handle_process_recovery(self):
         if self.current_monitor:

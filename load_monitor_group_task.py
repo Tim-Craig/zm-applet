@@ -1,4 +1,5 @@
 import time
+
 from functools import partial
 
 import app_config
@@ -33,15 +34,12 @@ def load_monitor_generator(app_context, output_queue):
 
 class LoadMonitorGroupsTask(ProcessWorkerTask):
     def __init__(self, app_context):
-        super(LoadMonitorGroupsTask, self).__init__(partial(load_monitor_generator, app_context))
+        super(LoadMonitorGroupsTask, self).__init__(partial(load_monitor_generator, app_context), 10)
 
-    def update(self):
-        super(LoadMonitorGroupsTask, self).update()
-        commands = self.process_worker.get_commands()
-        if commands and len(commands) > 0:
-            last_command = commands[len(commands) - 1]
-            if last_command:
-                if last_command[0] == WORKER_COMMAND_NEW_MONITOR_GROUP_DATA:
-                    self.event_bus.publish_event(INTERNAL_EVENT_MONITOR_GROUPS_DATA_LOAD, last_command[1])
-                elif last_command[0] == WORKER_COMMAND_ERROR_LOADING_MONITOR_GROUP_DATA:
-                    self.event_bus.publish_event(INTERNAL_EVENT_MONITOR_GROUPS_DATA_LOAD_ERROR, last_command[1])
+    def _process_commands(self, commands):
+        last_command = commands[len(commands) - 1]
+        if last_command:
+            if last_command[0] == WORKER_COMMAND_NEW_MONITOR_GROUP_DATA:
+                self.event_bus.publish_event(INTERNAL_EVENT_MONITOR_GROUPS_DATA_LOAD, last_command[1])
+            elif last_command[0] == WORKER_COMMAND_ERROR_LOADING_MONITOR_GROUP_DATA:
+                self.event_bus.publish_event(INTERNAL_EVENT_MONITOR_GROUPS_DATA_LOAD_ERROR, last_command[1])

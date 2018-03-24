@@ -1,4 +1,6 @@
 class AppComponent(object):
+    """A inner application of the applet.  Groups a controller, view and overlay together."""
+
     def __init__(self, app_context, activation_event):
         self.app_context = app_context
         self.activation_event = activation_event
@@ -14,8 +16,8 @@ class AppComponent(object):
         if self.controller:
             self.controller.deactivate()
 
-    def update(self):
+    def update(self, time_elapsed):
         if self.view:
-            self.view.update()
+            self.view.update(time_elapsed)
         if self.overlay:
-            self.overlay.update()
+            self.overlay.update(time_elapsed)

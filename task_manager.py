@@ -1,8 +1,11 @@
-from app_events import *
+from app_events import INTERNAL_EVENT_LAUNCH_TASK
 from event_listener import EventListener
 
 
 class TaskManager(EventListener):
+    """Responsible for calling update on every active task in the update phase of the application loop.  With listen to
+     "launch task" events and launch"""
+
     def __init__(self, event_bus):
         self.tasks = []
         self.event_bus = event_bus
