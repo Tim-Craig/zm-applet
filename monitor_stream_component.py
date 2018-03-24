@@ -92,6 +92,7 @@ class MonitorStreamerController(Controller):
 
     def display_retry_message(self, data=None):
         self.overlay.clear_arrows()
+        self.loading_new_image = False
         self.image_view.set_image(self.retry_message_img)
 
     def process_click(self, data=None):

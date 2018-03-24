@@ -35,8 +35,10 @@ https://youtu.be/njlV0YKWJrI
         * We are running as root because it's the only way to access the GPIO ports, if you are not going to use the GPIO ports you can run this as a normal user instead.
 
 #CHANGE LOG
-* Version 1.1 (03/17/2018):
+* Version 1.1.0 (03/17/2018):
     * Major refactoring
         * Moved multi-treading work to multi-process
         * Streaming no longer lags behind
-    * Moved from old XML skin to Zoneminder API for fetching monitor and group information 
+    * Moved from old XML skin to Zoneminder API for fetching monitor and group information
+* Version 1.1.1 (03/24/2018)
+    * Fixed bug were you couldn't change monitors when currently on a non-working monitor  
