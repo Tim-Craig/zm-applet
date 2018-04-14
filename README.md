@@ -43,3 +43,4 @@ https://youtu.be/njlV0YKWJrI
 * Version 1.1.1 (4/14/2018)
     * Fixed bug were you couldn't change monitors when currently on a non-working monitor
     * Message views will find best fitting font size
+* Version 1.1.2 (?/??/????)
