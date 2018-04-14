@@ -40,5 +40,6 @@ https://youtu.be/njlV0YKWJrI
         * Moved multi-treading work to multi-process
         * Streaming no longer lags behind
     * Moved from old XML skin to Zoneminder API for fetching monitor and group information
-* Version 1.1.1 (03/24/2018)
-    * Fixed bug were you couldn't change monitors when currently on a non-working monitor  
+* Version 1.1.1 (4/14/2018)
+    * Fixed bug were you couldn't change monitors when currently on a non-working monitor
+    * Message views will find best fitting font size
