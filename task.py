@@ -2,6 +2,8 @@ from event_listener import EventListener
 
 
 class Task(EventListener):
+    """Base class for background tasks."""
+
     def __init__(self):
         self.alive = True
         self.event_bus = None

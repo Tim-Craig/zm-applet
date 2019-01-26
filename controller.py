@@ -2,6 +2,8 @@ from event_listener import EventListener
 
 
 class Controller(EventListener):
+    """The controller (in a MVC sense) of a AppComponent"""
+
     def __init__(self, event_bus):
         self.enabled = False
         self.event_map = {}

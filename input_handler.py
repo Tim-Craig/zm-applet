@@ -1,8 +1,8 @@
 import time
-import types
 
 import pygame
 import pygame.event
+import types
 from pygame.locals import *
 
 import app_events
@@ -64,7 +64,7 @@ class MouseEventTracker(object):
         # call now so next call will return drag move delta
         pygame.mouse.get_rel()
         self.total_drag = 0
-        self.event_bus.publish_event(app_events.EVENT_MOUSE_DOWN)
+        self.event_bus.publish_event(app_events.INTERNAL_EVENT_MOUSE_DOWN, (pygame.mouse.get_pos()))
 
     def process_mouse_up(self):
         def is_within_expire_time():
@@ -76,16 +76,17 @@ class MouseEventTracker(object):
         self.mouse_down = False
         mouse_up_time = time.time()
         if is_within_expire_time() and is_within_drag_limit():
-            self.event_bus.publish_event(app_events.EVENT_MOUSE_CLICK, (pygame.mouse.get_pos()))
+            self.event_bus.publish_event(app_events.INTERNAL_EVENT_MOUSE_CLICK, (pygame.mouse.get_pos()))
         self.mouse_down_time = 0
         self.is_dragging = False
-        self.event_bus.publish_event(app_events.EVENT_MOUSE_UP)
+        self.event_bus.publish_event(app_events.INTERNAL_EVENT_MOUSE_UP, (pygame.mouse.get_pos()))
 
     def process_mouse_move(self):
         mouse_rel_movement = pygame.mouse.get_rel()
         if self.mouse_down and mouse_rel_movement != (0, 0):
             self.total_drag += abs(mouse_rel_movement[1])
-            self.event_bus.publish_event(app_events.EVENT_MOUSE_DRAG, (self.drag_start, mouse_rel_movement))
+            self.event_bus.publish_event(app_events.INTERNAL_EVENT_MOUSE_DRAG,
+                                         (self.drag_start, pygame.mouse.get_pos(), mouse_rel_movement))
             self.is_dragging = True
 
 

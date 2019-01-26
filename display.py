@@ -66,9 +66,9 @@ class PygameDisplay(object):
         if self.display:
             view_repainted = False
             if self.view.check_if_repaint_needed():
-                self.view.paint(self.display)
+                self.view.paint((0, 0), self.display)
                 view_repainted = True
             if self.overlay:
                 if self.overlay.check_if_repaint_needed() or view_repainted:
-                    self.overlay.paint(self.display)
+                    self.overlay.paint((0, 0), self.display)
             pygame.display.flip()

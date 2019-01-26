@@ -28,11 +28,11 @@ class SelectorController(Controller):
         super(self.__class__, self).__init__(event_bus)
         self.view = view
         self.selection_handler = selection_handler
-        self.event_map = {EVENT_MOUSE_DRAG: self.process_dragging,
-                          EVENT_MOUSE_CLICK: self.process_click}
+        self.event_map = {INTERNAL_EVENT_MOUSE_DRAG: self.process_dragging,
+                          INTERNAL_EVENT_MOUSE_CLICK: self.process_click}
 
     def process_dragging(self, data):
-        self.view.drag(data[0], data[1])
+        self.view.drag(data[0], data[1], data[2])
 
     def process_click(self, data):
         selection = self.view.process_click(data)

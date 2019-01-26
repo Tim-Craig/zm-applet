@@ -5,6 +5,8 @@ from controller import Controller
 
 
 class AppComponentManager(Controller):
+    """Manages the components of the applet.  Primarily handles the switching of components"""
+
     def __init__(self, display, event_bus, initial_app_component, default_app_component, app_components):
         def build_event_map():
             self.event_map = {
@@ -37,3 +39,7 @@ class AppComponentManager(Controller):
         if self.current_component:
             self.current_component.deactivate()
             self.current_component = None
+
+    def update(self, time_elapsed):
+        if self.current_component:
+            self.current_component.update(time_elapsed)

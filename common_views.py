@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pygame
 from pygame import Surface
 
@@ -9,29 +11,31 @@ TEXT_ALIGNMENT_CENTER = "center"
 
 
 class MessageView(View):
-    def __init__(self, message):
+    def __init__(self, message, background_color=(0, 0, 200), font_color=(255, 255, 255)):
         super(MessageView, self).__init__()
         self.message = message
         self.image = None
+        self.background_color = background_color
+        self.font_color = font_color
 
     def set_message(self, message):
         self.message = message
         # if the size has been set, then the view had already been started and we'll need to build a new image
         if self.size:
-            self.image = create_message_image(self.message, self.size)
+            self.image = create_message_image(message=self.message, image_size=self.size, font_color=self.font_color,
+                                              bg_color=self.background_color)
             self.need_repaint = True
 
     def start_view(self, size):
         super(MessageView, self).start_view(size)
-        self.image = create_message_image(self.message, size)
+        self.image = create_message_image(message=self.message, image_size=size, font_color=self.font_color,
+                                          bg_color=self.background_color)
         self.need_repaint = True
 
-    def get_rect(self):
-        return 0, 1, self.size[0], self.size[1]
-
-    def paint(self, display):
+    def paint(self, pos, display):
+        super(MessageView, self).paint(pos, display)
         if self.image:
-            display.blit(self.image, (0, 0))
+            display.blit(self.image, pos)
 
 
 class ImageView(View):
@@ -45,14 +49,12 @@ class ImageView(View):
             self.image = pygame.transform.scale(image, self.size)
         self.need_repaint = True
 
-    def get_rect(self):
-        return 0, 1, self.size[0], self.size[1]
-
-    def paint(self, display):
+    def paint(self, pos, display):
+        super(ImageView, self).paint(pos, display)
         if self.image:
-            display.blit(self.image, (0, 0))
+            display.blit(self.image, pos)
         else:
-            pygame.draw.rect(display, (0, 0, 200), self.get_rect())
+            pygame.draw.rect(display, (pos[0], pos[1], 200), (pos[0], pos[1], self.size[0], self.size[1]))
 
 
 class ListView(View):
@@ -127,7 +129,7 @@ class ListView(View):
         self.list_image, self.item_position_tracker = build_list_structures(self.size)
         self.scroll_length = self.list_image.get_size()[1] - (self.size[1] - self.caption_height)
 
-    def drag(self, drag_start_point, delta):
+    def drag(self, drag_start_point, current_pos, delta):
         if self.caption_height <= drag_start_point[1] <= self.size[1]:
             self.scroll_pos -= delta[1]
             if self.scroll_pos < 0:
@@ -143,23 +145,20 @@ class ListView(View):
             selection = self.item_position_tracker.get_item(data[1] - self.caption_height + self.scroll_pos)
         return selection
 
-    def paint(self, display):
+    def paint(self, pos, display):
         def check_and_fill_uncovered_area():
             list_image_size = self.list_image.get_size()
-            display_size = display.get_size()
             covered_height = (caption_height + list_image_size[1])
-            uncovered_height = display_size[1] - covered_height
+            uncovered_height = self.size[1] - covered_height
             if uncovered_height > 0:
-                width = display_size[0]
-                pygame.draw.rect(display, self.bg_color, (0, covered_height, width, uncovered_height))
+                width = self.size[0]
+                pygame.draw.rect(display, self.bg_color, (pos[0], pos[1] + covered_height, width, uncovered_height))
 
+        super(ListView, self).paint(pos, display)
         caption_height = self.caption_image.get_size()[1]
-        display.blit(self.list_image, (0, caption_height - self.scroll_pos))
-        display.blit(self.caption_image, (0, 0))
+        display.blit(self.list_image, (pos[0], pos[1] + caption_height - self.scroll_pos))
+        display.blit(self.caption_image, pos)
         check_and_fill_uncovered_area()
-
-    def close(self):
-        pass
 
 
 class _ItemPositionTracker(object):
@@ -178,67 +177,163 @@ class _ItemPositionTracker(object):
         return None
 
 
-class MonitorChangeOverlay(View):
-    ARROW_HEIGHT_PERCENTAGE = .25
+class Button(View):
+    BUTTON_SLEEP_TIME = 250
+    INNER_RECT_SIZE_OFFSET = 3
+
+    def __init__(self, label, action=None):
+        super(Button, self).__init__()
+        self.action = action
+        self._label = label
+        self._label_img = None
+        self._is_pressed = False
+        self._sleep_time = 0
+        self._inner_rect = (0, 0, 0, 0)
+
+    def start_view(self, size):
+        super(Button, self).start_view(size)
+        offset = Button.INNER_RECT_SIZE_OFFSET
+        self._inner_rect = (offset, offset, size[0] - (offset * 2), size[1] - (offset * 2))
+        self._label_img = create_message_image(self._label, (self._inner_rect[2], self._inner_rect[3]),
+                                               bg_color=(0, 0, 0, 0))
+
+    DARKER_COLOR = (77, 133, 255)
+    LIGHTER_COLOR = (179, 203, 255)
+
+    def paint(self, pos, display):
+        super(Button, self).paint(pos, display)
+        if self._is_pressed or self._sleep_time > 0:
+            pygame.draw.rect(display, Button.DARKER_COLOR, (pos[0], pos[1], self.size[0], self.size[1]))
+        else:
+            pygame.draw.rect(display, Button.LIGHTER_COLOR, (pos[0], pos[1], self.size[0], self.size[1]))
+        inner_rect = (
+            self._inner_rect[0] + pos[0], self._inner_rect[1] + pos[1], self._inner_rect[2], self._inner_rect[3])
+        pygame.draw.rect(display, Button.DARKER_COLOR, inner_rect)
+        display.blit(self._label_img, (inner_rect[0], inner_rect[1]))
+
+    def process_pressed(self, pos):
+        super(Button, self).process_pressed(pos)
+        if self._sleep_time <= 0:
+            if 0 <= pos[0] <= self.size[0] and 0 <= pos[1] <= self.size[1]:
+                self._is_pressed = True
+                self.need_repaint = True
+
+    def process_press_released(self, pos):
+        super(Button, self).process_press_released(pos)
+        if self._sleep_time <= 0:
+            if self._is_pressed:
+                self._is_pressed = True
+                self.need_repaint = True
+                self._sleep_time = self.BUTTON_SLEEP_TIME
+                self.action()
+
+    def drag(self, drag_start_point, current_pos, delta):
+        super(Button, self).drag(drag_start_point, current_pos, delta)
+        if self._is_pressed:
+            if current_pos[0] < 0 or current_pos[0] > self.size[0] or \
+                    current_pos[1] < 0 or current_pos[1] > self.size[1]:
+                self._is_pressed = False
+                self.need_repaint = True
+        elif 0 <= drag_start_point[0] <= self.size[0] and 0 <= drag_start_point[1] <= self.size[1]:
+            if 0 <= current_pos[0] <= self.size[0] and 0 <= current_pos[1] <= self.size[1]:
+                self._is_pressed = True
+                self.need_repaint = True
+
+    def update(self, time_elapsed):
+        if self._sleep_time > 0:
+            self._sleep_time -= time_elapsed
+            if self._sleep_time <= 0:
+                self._sleep_time = 0
+                self._is_pressed = False
+                self.need_repaint = True
+
+
+class ArrowDisplay(View):
     ARROW_EDGE_MARGIN = 3
 
-    def __init__(self, color=(0, 255, 0)):
-        super(MonitorChangeOverlay, self).__init__()
-        self.color = color
-        self.left_arrow = None
-        self.right_arrow = None
-        self.show_left = False
-        self.show_right = False
+    LEFT_ARROW = 0
+    RIGHT_ARROW = 1
 
-    def show_right_arrow(self):
-        self.need_repaint = True
-        self.show_right = True
+    def __init__(self, arrow_direction, click_callback=None, color=(0, 255, 0)):
+        super(ArrowDisplay, self).__init__()
+        self._arrow_direction = arrow_direction
+        self._click_callback = click_callback
+        self._color = color
+        self._arrow = None
+        self._last_position = None
+        self._translated_arrow = None
+        self._show_arrow = False
 
-    def show_left_arrow(self):
+    def show_arrow(self):
         self.need_repaint = True
-        self.show_left = True
+        self._show_arrow = True
 
-    def clear_arrows(self):
+    def hide_arrow(self):
         self.need_repaint = True
-        self.show_right = False
-        self.show_left = False
+        self._show_arrow = False
 
     def start_view(self, size):
         def round_int(num):
             return int(round(num) - .5) + (num > 0)
 
-        def build_arrows():
-            arrow_half_height = round_int(size[1] * self.ARROW_HEIGHT_PERCENTAGE / 2)
+        def build_arrow():
+            arrow_half_height = round_int(size[1] / 2)
             arrow_width = arrow_half_height * 2
             center_y = int(size[1] / 2)
 
-            self.left_arrow = []
-            x = self.ARROW_EDGE_MARGIN
-            y = center_y
-            self.left_arrow.append((x, y))
-            x = self.ARROW_EDGE_MARGIN + arrow_width
-            y = center_y - arrow_half_height
-            self.left_arrow.append((x, y))
-            x = self.ARROW_EDGE_MARGIN + arrow_width
-            y = center_y + arrow_half_height
-            self.left_arrow.append((x, y))
+            self._arrow = []
+            if self._arrow_direction == ArrowDisplay.LEFT_ARROW:
+                x = self.ARROW_EDGE_MARGIN
+                y = center_y
+                self._arrow.append((x, y))
+                x = self.ARROW_EDGE_MARGIN + arrow_width
+                y = center_y - arrow_half_height
+                self._arrow.append((x, y))
+                x = self.ARROW_EDGE_MARGIN + arrow_width
+                y = center_y + arrow_half_height
+                self._arrow.append((x, y))
+            else:  # RIGHT_ARROW
+                x = size[0] - self.ARROW_EDGE_MARGIN
+                y = center_y
+                self._arrow.append((x, y))
+                x = size[0] - self.ARROW_EDGE_MARGIN - arrow_width
+                y = center_y - arrow_half_height
+                self._arrow.append((x, y))
+                x = size[0] - self.ARROW_EDGE_MARGIN - arrow_width
+                y = center_y + arrow_half_height
+                self._arrow.append((x, y))
 
-            self.right_arrow = []
-            x = size[0] - self.ARROW_EDGE_MARGIN
-            y = center_y
-            self.right_arrow.append((x, y))
-            x = size[0] - self.ARROW_EDGE_MARGIN - arrow_width
-            y = center_y - arrow_half_height
-            self.right_arrow.append((x, y))
-            x = size[0] - self.ARROW_EDGE_MARGIN - arrow_width
-            y = center_y + arrow_half_height
-            self.right_arrow.append((x, y))
+        super(ArrowDisplay, self).start_view(size)
+        build_arrow()
 
-        super(MonitorChangeOverlay, self).start_view(size)
-        build_arrows()
+    def process_click(self, pos):
+        if self._click_callback:
+            self._click_callback()
 
-    def paint(self, display):
-        if self.show_left:
-            pygame.draw.polygon(display, self.color, self.left_arrow)
-        if self.show_right:
-            pygame.draw.polygon(display, self.color, self.right_arrow)
+    def paint(self, pos, display):
+        super(ArrowDisplay, self).paint(pos, display)
+        if pos != self._last_position:
+            self._last_position = pos
+            self._translated_arrow = [(point[0] + pos[0], point[1] + pos[1]) for point in self._arrow]
+        if self._show_arrow:
+            pygame.draw.polygon(display, self._color, self._translated_arrow)
+
+
+class CurrentTimeLabel(MessageView):
+    BACKGROUND_COLOR = (255, 255, 255)
+    FONT_COLOR = (0, 0, 0)
+
+    def __init__(self):
+        self.minute = datetime.today().minute
+        super(CurrentTimeLabel, self).__init__(self._get_time_str(), CurrentTimeLabel.FONT_COLOR,
+                                               CurrentTimeLabel.BACKGROUND_COLOR)
+
+    def update(self, time_elapsed):
+        current_minute = datetime.today().minute
+        if self.minute != current_minute:
+            self.minute = current_minute
+            self.set_message(self._get_time_str())
+
+    @staticmethod
+    def _get_time_str():
+        return datetime.today().strftime("%m/%d/%y %I:%M %p")
