@@ -55,3 +55,5 @@ Ensure you Zoneminder service has Groups API support ZM Applet now uses the Zone
 * Version 1.1.2 (1/25/2019)
     * Catch scenarios the http library hangs
     * Added on-screen menu buttons and clock display in monitor stream view
+* Version 1.1.3 (3/30/2019)
+    * Fixed streaming issue when using user authentication in Zoneminder (still on old version of API authentication, will move to newer version)

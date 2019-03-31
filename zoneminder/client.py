@@ -59,6 +59,9 @@ class ZoneMinderClient(object):
         signal.alarm(self.timeout)
         self._login()
         stream_parameters = {'mode': 'jpeg', 'monitor': str(monitor_id), 'scale': str(scale), 'maxfps': max_fps}
+        if self.user_name is not None and self.password is not None:
+            stream_parameters['user'] = self.user_name
+            stream_parameters['pass'] = self.password
         request = build_urllib_request(self.server_host_and_port, self.zms_web_path, stream_parameters)
         signal.alarm(0)
         return urllib2.urlopen(request)
@@ -66,7 +69,7 @@ class ZoneMinderClient(object):
     def _login(self):
         if not self.logged_in:
             if self.user_name is not None and self.password is not None:
-                login_params = {'action': 'login', 'view': 'postlogin', 'username': self.user_name,
+                login_params = {'action': 'login', 'view': 'console', 'username': self.user_name,
                                 'password': self.password}
                 request = build_urllib_request(self.server_host_and_port, self.zm_web_path, login_params)
                 urllib2.urlopen(request)
