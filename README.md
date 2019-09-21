@@ -57,3 +57,5 @@ Ensure you Zoneminder service has Groups API support ZM Applet now uses the Zone
     * Added on-screen menu buttons and clock display in monitor stream view
 * Version 1.1.3 (3/30/2019)
     * Fixed streaming issue when using user authentication in Zoneminder (still on old version of API authentication, will move to newer version)
+* Version 1.1.4 (9/21/2019)
+    * Fixed bug were zo-applet fails to load when Zoneminder api returns empty groups

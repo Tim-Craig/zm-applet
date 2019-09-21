@@ -20,8 +20,11 @@ def parse_monitor_json(monitor_json):
 def parse_group_json(groups_json):
     group_id = groups_json['Id']
     name = groups_json['Name']
-    monitor_ids = groups_json['MonitorIds'].split(',')
-    return Group(group_id, name, monitor_ids)
+    group = None
+    if 'MonitorIds' in groups_json:
+        monitor_ids = groups_json['MonitorIds'].split(',')
+        group = Group(group_id, name, monitor_ids)
+    return group
 
 
 class GroupFilter(object):
@@ -46,7 +49,8 @@ def parse_group_info_from_api(group_api_json, monitor_api_json):
     monitor_list = sorted(monitor_list, key=lambda m: int(m.sequence))
     monitor_list = filter(lambda mon: mon.state == 'OK', monitor_list)
     monitor_map = {monitor.id: monitor for monitor in monitor_list}
-    groups = [parse_group_json(group['Group']) for group in group_api_json['groups']]
+    groups = [parsed_group for parsed_group in (parse_group_json(group['Group']) for group in group_api_json['groups'])
+              if parsed_group is not None]
     all_monitors_group = Group("0", "All", [monitor.id for monitor in monitor_list])
     groups.insert(0, all_monitors_group)
     return groups, monitor_map
